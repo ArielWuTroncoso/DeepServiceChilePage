@@ -1,0 +1,68 @@
+# ============================================================================
+# Deep Service Chile - Despliegue en Render con DOS servicios,
+# igual que el proyecto Abrazamente: un backend y un frontend separados.
+#
+# Tras el primer deploy hay que cruzar las URLs:
+#   - En el backend  -> FRONTEND_ORIGINS = URL publica del frontend
+#   - En el frontend -> VITE_API_URL     = URL publica del backend
+# ============================================================================
+services:
+
+  # --------------------------------------------------------------------
+  # 1) Backend: API REST Spring Boot + PostgreSQL
+  # --------------------------------------------------------------------
+  - type: web
+    name: deep-service-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.backend
+    plan: free
+    region: oregon
+    healthCheckPath: /api/salud
+    envVars:
+      - key: DB_URL
+        sync: false   # jdbc:postgresql://HOST:5432/BASE?sslmode=require
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: JPA_SHOW_SQL
+        value: "false"
+      - key: FLYWAY_ENABLED
+        value: "false"
+      - key: SEED_ENABLED
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: FRONTEND_ORIGINS
+        sync: false   # https://deep-service-frontend.onrender.com
+      - key: PORT
+        value: "8080"
+
+  # --------------------------------------------------------------------
+  # 2) Frontend: SPA estatico (React + Vite)
+  # --------------------------------------------------------------------
+  - type: web
+    name: deep-service-frontend
+    runtime: static
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build:spa
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false   # https://deep-service-backend.onrender.com
+    routes:
+      # El SPA usa React Router: toda ruta desconocida vuelve al index.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

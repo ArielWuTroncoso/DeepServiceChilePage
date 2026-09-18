@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: deepservice
+      POSTGRES_USER: deepservice
+      POSTGRES_PASSWORD: deepservice
+    ports: ["5432:5432"]
+    volumes: ["dsdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deepservice"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/deepservice
+      DB_USER: deepservice
+      DB_PASSWORD: deepservice
+      DB_DRIVER: org.postgresql.Driver
+      JPA_DDL_AUTO: update
+      FRONTEND_ORIGINS: http://localhost:8080,http://localhost:5173
+      SEED_ENABLED: "true"
+    ports: ["8080:8080"]
+
+volumes:
+  dsdata:

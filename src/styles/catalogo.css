@@ -1,0 +1,82 @@
+/* ===== Catálogo: filtros + rejilla ===== */
+.cat__layout { display: grid; grid-template-columns: 276px 1fr; gap: clamp(22px, 3vw, 40px); align-items: start; }
+@media (max-width: 940px) { .cat__layout { grid-template-columns: 1fr; } }
+
+.filters { position: sticky; top: calc(var(--header-h) + 20px); display: grid; gap: 22px; padding: 24px; }
+@media (max-width: 940px) { .filters { position: static; } }
+.filters__group h4 { font-size: .74rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 13px; }
+.filters__opt { display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; font-size: .92rem; }
+.filters__opt input { width: 17px; height: 17px; accent-color: var(--b-600); cursor: pointer; flex: 0 0 auto; }
+.filters__opt span { flex: 1; }
+.filters__opt em { font-style: normal; font-size: .78rem; color: var(--ink-faint); }
+.filters__reset { width: 100%; }
+
+.cat__search { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.cat__searchbox { position: relative; flex: 1 1 260px; }
+.cat__searchbox svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; }
+.cat__searchbox input {
+  width: 100%; padding: 14px 16px 14px 45px; border: 1px solid var(--line);
+  border-radius: var(--radius-pill); background: var(--surface); font-size: .94rem;
+}
+.cat__searchbox input:focus { border-color: var(--b-400); }
+.cat__sort { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--surface); font-size: .9rem; cursor: pointer; }
+.cat__meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; font-size: .9rem; color: var(--ink-soft); flex-wrap: wrap; }
+.cat__active { display: flex; gap: 8px; flex-wrap: wrap; }
+.cat__activechip {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px;
+  background: var(--paper-3); border-radius: var(--radius-pill); font-size: .8rem; font-weight: 600;
+  border: 0; cursor: pointer; color: var(--ink-soft);
+}
+.cat__activechip:hover { background: var(--b-300); color: var(--b-950); }
+
+/* Tarjeta de producto */
+.prod { display: flex; flex-direction: column; overflow: hidden; height: 100%; }
+.prod__media {
+  position: relative; aspect-ratio: 4/3; display: grid; place-items: center; align-content: center; gap: 8px;
+  background: linear-gradient(160deg, var(--paper-2), var(--paper-3));
+  border-bottom: 1px solid var(--line); color: var(--ink-faint); text-align: center; padding: 18px;
+}
+[data-theme="dark"] .prod__media { background: linear-gradient(160deg, var(--b-850), var(--b-900)); }
+.prod__media span { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
+.prod__flag { position: absolute; top: 12px; left: 12px; }
+.prod__body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+.prod__brand { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--b-500); }
+.prod__name { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; text-transform: uppercase; line-height: 1; margin: 8px 0 6px; }
+.prod__desc { font-size: .9rem; line-height: 1.5; color: var(--ink-soft); flex: 1; }
+.prod__specs { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+.prod__spec { padding: 5px 10px; background: var(--paper-2); border-radius: 6px; font-size: .74rem; font-weight: 700; color: var(--ink-soft); }
+[data-theme="dark"] .prod__spec { background: rgba(155,219,247,.1); }
+.prod__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+.prod__cat { font-size: .78rem; color: var(--ink-faint); }
+.prod__link { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: .86rem; color: var(--b-600); }
+
+/* ===== Ficha de producto ===== */
+.pdp { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 4vw, 56px); align-items: start; }
+@media (max-width: 900px) { .pdp { grid-template-columns: 1fr; } }
+.pdp__media { position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: 14px; }
+@media (max-width: 900px) { .pdp__media { position: static; } }
+.pdp__slot {
+  aspect-ratio: 1/1; border-radius: var(--radius-lg); border: 2px dashed var(--line);
+  background: linear-gradient(160deg, var(--paper-2), var(--paper-3));
+  display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 28px; color: var(--ink-faint);
+}
+[data-theme="dark"] .pdp__slot { background: linear-gradient(160deg, var(--b-850), var(--b-900)); }
+.pdp__thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.pdp__thumb { aspect-ratio: 1/1; border-radius: var(--radius-sm); border: 1px dashed var(--line); background: var(--paper-2); display: grid; place-items: center; color: var(--ink-faint); font-size: .68rem; }
+[data-theme="dark"] .pdp__thumb { background: var(--b-850); }
+
+.pdp__brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.pdp h1 { margin-bottom: 12px; }
+.pdp__sub { font-size: 1.06rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: 26px; }
+.pdp__chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr)); gap: 11px; margin-bottom: 30px; }
+.pdp__feats { display: grid; gap: 16px; margin: 26px 0 32px; }
+.pdp__feat { display: flex; gap: 13px; align-items: flex-start; }
+.pdp__feat b { display: block; font-weight: 800; font-size: .98rem; text-transform: uppercase; margin-bottom: 4px; }
+.pdp__feat p { font-size: .92rem; color: var(--ink-soft); line-height: 1.45; }
+.pdp__actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.pdp__table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+.pdp__table th, .pdp__table td { padding: 14px 16px; text-align: left; font-size: .92rem; border-bottom: 1px solid var(--line); }
+.pdp__table th { width: 42%; font-weight: 700; color: var(--ink-soft); }
+.pdp__table tr:nth-child(odd) { background: var(--paper-2); }
+[data-theme="dark"] .pdp__table tr:nth-child(odd) { background: rgba(155,219,247,.05); }
