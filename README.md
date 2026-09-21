@@ -131,26 +131,34 @@ Ambas se sirven a su tamaño real (sin ampliar) y en WebP con respaldo JPG/PNG.
 
 ### Videos de portada
 
-La portada muestra dos videos como pantallas superpuestas: plóter GPS (848×480)
-y sonar (408×728, vertical). Componente: `src/components/home/HeroVideos.jsx`.
+Carrusel en la portada (`src/components/home/HeroVideos.jsx`): se reproduce el
+video del **sonar**; al terminar, el marco se desliza al del **plóter GPS**; al
+terminar ése, vuelve al primero. Debajo hay un botón de pausa y un indicador por
+video con su avance (también sirven para saltar de uno a otro).
+
+Ambos archivos comparten la proporción horizontal del marco. El sonar se grabó en
+vertical, así que va montado sobre una copia difuminada de sí mismo, sin recortar
+el video original.
 
 | Archivo | Peso | Quién lo descarga |
 |---|---|---|
-| `portada-gps.webm` · `portada-sonar.webm` (AV1) | 855 + 931 KB | Chrome, Edge, Firefox |
-| `portada-gps.mp4` · `portada-sonar.mp4` (H.264) | 1.096 + 1.148 KB | Safari y equipos sin AV1 |
-| `portada-*.webp` (póster) | 27 KB c/u | Todos, al cargar |
+| `portada-sonar.webm` · `portada-gps.webm` (AV1) | 759 + 872 KB | Chrome, Edge, Firefox |
+| `portada-sonar.mp4` · `portada-gps.mp4` (H.264) | 1.203 + 1.094 KB | Safari y equipos sin AV1 |
+| `portada-*.webp` (póster) | 19 + 26 KB | Todos, al cargar |
 
-Originales: 6,9 MB con audio. Codificación: sin audio, bucle continuo con
-fundido de 0,6 s, H.264 CRF 26 / AV1 CRF 38 (calidad verificada con SSIM).
+Originales: 6,9 MB con audio. Codificación: sin audio, H.264 CRF 26 / AV1 CRF 38.
 
-**Consumo por visita nueva** (plan Hobby de Render: 5 GB/mes): ~2,2 MB con AV1
-y ~2,7 MB en el peor caso (Safari) → **~1.850 visitas nuevas al mes** en el peor
-caso. Los videos no se descargan si el visitante activa "ahorro de datos" o
-"reducir movimiento", tiene conexión 2G, o (en móvil) no baja hasta ellos.
-Quien vuelve los tiene en caché 30 días (`render.yaml` → `headers`).
+**Consumo** (plan Hobby de Render: 5 GB/mes):
+- Al cargar sólo bajan los pósters. El 1.er video empieza cuando el marco está en
+  pantalla; el 2.º se descarga recién cuando al 1.º le quedan 5 s.
+- Visita que ve ambos: ~2,0 MB (AV1) / ~2,8 MB (Safari) → **~1.800 visitas nuevas
+  al mes en el peor caso**. Quien se va antes de terminar el 1.er video gasta menos.
+- Las vueltas siguientes del carrusel no vuelven a descargar.
+- Con "ahorro de datos" o conexión 2G quedan los pósters fijos. "Reducir
+  movimiento" **no** detiene los videos (el visitante tiene el botón de pausa).
 
-Para reemplazar un video: generar ambos formatos con el mismo encuadre, darles
-un **nombre nuevo** (por la caché de 30 días) y actualizar `CLIPS` en el componente.
+Para reemplazar un video: mismo encuadre horizontal, **nombre nuevo** (por la
+caché) y actualizar `CLIPS` en el componente.
 
 ### Cabecera
 

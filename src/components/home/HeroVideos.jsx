@@ -2,54 +2,50 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
 
 /**
- * Videos de portada: plóter GPS (horizontal) y sonar (vertical), montados
- * como dos pantallas superpuestas.
+ * Carrusel de videos de portada: se ve un video; al terminar, el marco se
+ * desliza al siguiente; al terminar el último, vuelve al primero.
  *
- * Presupuesto de ancho de banda (plan Hobby de Render: 5 GB/mes):
- *   · Cada visitante descarga UNA versión de cada video: AV1/WebM (Chrome,
- *     Edge, Firefox) ≈ 1,8 MB en total, o H.264/MP4 (Safari) ≈ 2,3 MB.
- *   · Con el resto del sitio (~0,65 MB), el peor caso es ≈ 3 MB por visita
- *     nueva → unas 1.700 visitas nuevas al mes antes de llegar a 5 GB.
+ * Los dos archivos comparten la proporción horizontal del marco. El sonar se
+ * grabó en vertical, así que viene montado sobre una copia difuminada de sí
+ * mismo (sin recortar el video original).
  *
- * Para gastar sólo cuando vale la pena:
- *   · `preload="none"`: al cargar la página sólo bajan los pósters (~28 KB c/u).
- *   · Los videos empiezan cuando el recuadro entra en pantalla y la página ya
- *     terminó de cargar; en móvil, quien no baja hasta ellos no los descarga.
- *   · Con "ahorro de datos", conexión 2G o "reducir movimiento" se quedan los
- *     pósters fijos y no se descarga nada.
- *   · Se pausan fuera de pantalla o con la pestaña oculta, y el visitante
- *     puede pausarlos (requisito de accesibilidad para movimiento automático).
+ * Ancho de banda (plan Hobby de Render: 5 GB/mes):
+ *   · Al cargar la página sólo bajan los pósters (~20–26 KB c/u).
+ *   · El primer video empieza cuando el marco está en pantalla y la página
+ *     terminó de cargar. El SEGUNDO sólo se descarga cuando al primero le
+ *     quedan ~5 s: quien se va antes no lo descarga.
+ *   · Con "ahorro de datos" o conexión 2G se quedan los pósters fijos.
+ *   · Los dos <video> quedan montados, así las vueltas siguientes usan lo que
+ *     ya está en memoria y no vuelven a descargar.
  */
 
 const CLIPS = [
   {
-    id: 'gps',
-    clase: 'hero-vid__clip--main',
-    base: '/video/portada-gps',
-    ancho: 848,
-    alto: 480,
-    etiqueta: 'Plóter GPS',
-    descripcion: 'Plóter GPS en operación en el puente de mando, y vista de la flota pesquera en la bahía.',
+    id: 'sonar',
+    base: '/video/portada-sonar',
+    etiqueta: 'Sonar',
+    descripcion: 'Sonar Furuno en operación a bordo y vista desde el puente de mando.',
   },
   {
-    id: 'sonar',
-    clase: 'hero-vid__clip--side',
-    base: '/video/portada-sonar',
-    ancho: 408,
-    alto: 728,
-    etiqueta: 'Sonar',
-    descripcion: 'Sonar Furuno en operación a bordo y vista desde el puente.',
+    id: 'gps',
+    base: '/video/portada-gps',
+    etiqueta: 'Plóter GPS',
+    descripcion: 'Plóter GPS Garmin en operación y vista de la flota pesquera en la bahía.',
   },
 ];
 
-// AV1 nivel 3.0, perfil Main, 8 bits (verificado con ffprobe).
+// Códecs exactos (verificados con ffprobe) para que cada navegador elija bien.
 const TIPO_AV1 = 'video/webm; codecs="av01.0.04M.08"';
 const TIPO_H264 = 'video/mp4; codecs="avc1.64001F"';
 
+const DESLIZ_MS = 900;        // duración del deslizamiento (igual que en CSS)
+const ADELANTO_S = 0.85;      // se empieza a deslizar poco antes del final
+const PRECARGA_S = 5;         // se pide el siguiente video cuando faltan 5 s
+
+/** Sólo razones de ANCHO DE BANDA impiden el video. "Reducir movimiento" no:
+ *  el visitante tiene el botón de pausa. */
 function videoPermitido() {
-  if (typeof window === 'undefined') return false;
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
-  const c = navigator.connection;
+  const c = typeof navigator !== 'undefined' ? navigator.connection : undefined;
   if (c?.saveData) return false;
   if (c && ['slow-2g', '2g'].includes(c.effectiveType)) return false;
   return true;
@@ -57,102 +53,189 @@ function videoPermitido() {
 
 function cuandoCargue(fn) {
   const seguir = () => ('requestIdleCallback' in window
-    ? window.requestIdleCallback(fn, { timeout: 1500 })
-    : window.setTimeout(fn, 300));
+    ? window.requestIdleCallback(fn, { timeout: 1200 })
+    : window.setTimeout(fn, 250));
   if (document.readyState === 'complete') seguir();
   else window.addEventListener('load', seguir, { once: true });
 }
 
-export default function HeroVideos() {
-  const contenedor = useRef(null);
-  const videos = useRef([]);
-  const [activo, setActivo] = useState(false);     // se permitió y se inició
-  const [enPausa, setEnPausa] = useState(false);   // pausa elegida por el visitante
-  const pausaManual = useRef(false);
-  const visible = useRef(false);
+function cargar(v) {
+  if (v && v.preload !== 'auto') { v.preload = 'auto'; v.load(); }
+}
 
-  const reproducir = useCallback(() => {
-    if (pausaManual.current || !visible.current || document.hidden) return;
-    videos.current.forEach((v) => {
-      if (!v) return;
-      if (v.preload !== 'auto') { v.preload = 'auto'; v.load(); }
-      // Si el navegador bloquea la reproducción (p. ej. modo de bajo consumo
-      // en iOS), queda el póster; no es un error.
-      v.play().catch(() => {});
-    });
+export default function HeroVideos() {
+  const marco = useRef(null);
+  const videos = useRef([]);
+  const [actual, setActual] = useState(0);
+  const [saliente, setSaliente] = useState(null);
+  const [activo, setActivo] = useState(false);
+  const [enPausa, setEnPausa] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  // Refs espejo del estado, para usarlos dentro de los manejadores de eventos.
+  const st = useRef({ actual: 0, activo: false, pausa: false, visible: false, avanzando: false });
+
+  const reproducirActual = useCallback(() => {
+    const s = st.current;
+    if (!s.activo || s.pausa || !s.visible || document.hidden) return;
+    const v = videos.current[s.actual];
+    if (!v) return;
+    cargar(v);
+    v.play().catch(() => {});
   }, []);
 
-  const pausar = useCallback(() => {
+  const pausarTodo = useCallback(() => {
     videos.current.forEach((v) => v && !v.paused && v.pause());
   }, []);
 
-  useEffect(() => {
-    if (!videoPermitido() || !contenedor.current) return undefined;
+  const irA = useCallback((destino) => {
+    const s = st.current;
+    if (destino === s.actual || s.avanzando) return;
+    s.avanzando = true;
+    const origen = s.actual;
+    const vNuevo = videos.current[destino];
+    cargar(vNuevo);
+    try { vNuevo.currentTime = 0; } catch { /* aún sin metadatos */ }
 
+    s.actual = destino;
+    setSaliente(origen);
+    setActual(destino);
+    setProgreso(0);
+    reproducirActual();
+
+    window.setTimeout(() => {
+      const vViejo = videos.current[origen];
+      if (vViejo) { vViejo.pause(); try { vViejo.currentTime = 0; } catch { /* nada */ } }
+      setSaliente(null);         // el que salió vuelve, oculto, a la derecha
+      s.avanzando = false;
+    }, DESLIZ_MS + 30);
+  }, [reproducirActual]);
+
+  const siguiente = useCallback(() => {
+    irA((st.current.actual + 1) % CLIPS.length);
+  }, [irA]);
+
+  // Inicio: cuando el marco entra en pantalla y la página ya cargó.
+  useEffect(() => {
+    // React no escribe el atributo `muted` en el HTML; Safari/iOS lo exige
+    // para reproducir sin interacción. Se fija a mano.
+    videos.current.forEach((v) => {
+      if (!v) return;
+      v.muted = true; v.defaultMuted = true; v.setAttribute('muted', '');
+      v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+    });
+
+    if (!videoPermitido() || !marco.current) return undefined;
     let arrancado = false;
     const io = new IntersectionObserver(([e]) => {
-      visible.current = e.isIntersecting;
-      if (!e.isIntersecting) { pausar(); return; }
+      st.current.visible = e.isIntersecting;
+      if (!e.isIntersecting) { pausarTodo(); return; }
       if (!arrancado) {
         arrancado = true;
-        cuandoCargue(() => { setActivo(true); reproducir(); });
+        cuandoCargue(() => {
+          st.current.activo = true;
+          setActivo(true);
+          reproducirActual();
+        });
       } else {
-        reproducir();
+        reproducirActual();
       }
-    }, { threshold: 0.2 });
-    io.observe(contenedor.current);
+    }, { threshold: 0.25 });
+    io.observe(marco.current);
 
-    const alCambiarPestana = () => (document.hidden ? pausar() : reproducir());
+    const alCambiarPestana = () => (document.hidden ? pausarTodo() : reproducirActual());
     document.addEventListener('visibilitychange', alCambiarPestana);
-
     return () => {
       io.disconnect();
       document.removeEventListener('visibilitychange', alCambiarPestana);
     };
-  }, [pausar, reproducir]);
+  }, [pausarTodo, reproducirActual]);
 
-  const alternar = () => {
-    pausaManual.current = !pausaManual.current;
-    setEnPausa(pausaManual.current);
-    if (pausaManual.current) pausar(); else reproducir();
+  // Progreso, precarga del siguiente y avance automático.
+  const alAvanzarTiempo = (i) => (e) => {
+    const s = st.current;
+    if (i !== s.actual) return;
+    const v = e.currentTarget;
+    if (!v.duration || Number.isNaN(v.duration)) return;
+    const resta = v.duration - v.currentTime;
+    setProgreso(Math.min(1, v.currentTime / v.duration));
+    if (resta < PRECARGA_S) cargar(videos.current[(i + 1) % CLIPS.length]);
+    if (resta < ADELANTO_S && !s.pausa) siguiente();
+  };
+
+  const alTerminar = (i) => () => {
+    if (i === st.current.actual && !st.current.pausa) siguiente();
+  };
+
+  const alternarPausa = () => {
+    const s = st.current;
+    s.pausa = !s.pausa;
+    setEnPausa(s.pausa);
+    if (s.pausa) pausarTodo(); else reproducirActual();
+  };
+
+  const estadoSlide = (i) => {
+    if (i === actual) return 'is-actual';
+    if (i === saliente) return 'is-saliendo';
+    return '';
   };
 
   return (
-    <div className="hero-vid" ref={contenedor}>
-      {CLIPS.map((c, i) => (
-        <figure className={`hero-vid__clip ${c.clase}`} key={c.id}>
-          <video
-            ref={(el) => { videos.current[i] = el; }}
-            width={c.ancho}
-            height={c.alto}
-            poster={`${c.base}.webp`}
-            muted
-            loop
-            playsInline
-            preload="none"
-            disablePictureInPicture
-            aria-label={c.descripcion}
+    <div className="hero-car">
+      <div className="hero-car__frame" ref={marco} aria-roledescription="carrusel" aria-label="Videos a bordo">
+        {CLIPS.map((c, i) => (
+          <figure
+            className={`hero-car__slide ${estadoSlide(i)}`}
+            key={c.id}
+            aria-hidden={i !== actual}
           >
-            <source src={`${c.base}.webm`} type={TIPO_AV1} />
-            <source src={`${c.base}.mp4`} type={TIPO_H264} />
-          </video>
-          <figcaption className="hero-vid__tag">{c.etiqueta}</figcaption>
-        </figure>
-      ))}
+            <video
+              ref={(el) => { videos.current[i] = el; }}
+              poster={`${c.base}.webp`}
+              muted
+              playsInline
+              preload="none"
+              disablePictureInPicture
+              aria-label={c.descripcion}
+              onTimeUpdate={alAvanzarTiempo(i)}
+              onEnded={alTerminar(i)}
+            >
+              <source src={`${c.base}.webm`} type={TIPO_AV1} />
+              <source src={`${c.base}.mp4`} type={TIPO_H264} />
+            </video>
+            <figcaption className="hero-car__tag">{c.etiqueta}</figcaption>
+          </figure>
+        ))}
+      </div>
 
-      <div className="hero-vid__note">
-        {activo && (
-          <button
-            type="button"
-            className="hero-vid__toggle"
-            onClick={alternar}
-            aria-pressed={enPausa}
-            aria-label={enPausa ? 'Reproducir videos' : 'Pausar videos'}
-          >
-            {enPausa ? <Play size={15} /> : <Pause size={15} />}
-          </button>
-        )}
-        <span>Equipos en operación a bordo</span>
+      <div className="hero-car__bar">
+        <button
+          type="button"
+          className="hero-car__toggle"
+          onClick={alternarPausa}
+          disabled={!activo}
+          aria-pressed={enPausa}
+          aria-label={enPausa ? 'Reproducir videos' : 'Pausar videos'}
+        >
+          {enPausa || !activo ? <Play size={15} /> : <Pause size={15} />}
+        </button>
+        <div className="hero-car__dots" role="tablist" aria-label="Elegir video">
+          {CLIPS.map((c, i) => (
+            <button
+              type="button"
+              role="tab"
+              key={c.id}
+              className={`hero-car__dot${i === actual ? ' is-on' : ''}`}
+              aria-selected={i === actual}
+              onClick={() => { if (!activo) return; irA(i); }}
+            >
+              <span>{c.etiqueta}</span>
+              <i aria-hidden="true">
+                <b style={{ transform: `scaleX(${i === actual ? progreso : 0})` }} />
+              </i>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
