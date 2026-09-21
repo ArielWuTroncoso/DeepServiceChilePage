@@ -66,7 +66,8 @@ contraseña: DeepService2026        ← cambiar en el primer ingreso
 public/
 ├── marca/                      Logotipo oficial de Deep Service (blanco y azul)
 ├── marcas/                     Logotipos originales: furuno, garmin, icom, acr, marport
-├── img/                        Fotografías: bahía de San Vicente (portada) y FCV-800
+├── img/                        Fotografías: bahía de San Vicente y FCV-800 (destacado)
+├── video/                      Videos de portada (AV1 .webm + H.264 .mp4) y sus pósters
 └── favicon.ico · favicon.png · apple-touch-icon.png
 
 src/
@@ -127,6 +128,29 @@ con su `logoRatio` y, si debe existir en la base, a `DataSeeder.java`.
 | `img/furuno-fcv-800.webp/.png` | Producto destacado | Recorte con fondo transparente, 570 × 568 |
 
 Ambas se sirven a su tamaño real (sin ampliar) y en WebP con respaldo JPG/PNG.
+
+### Videos de portada
+
+La portada muestra dos videos como pantallas superpuestas: plóter GPS (848×480)
+y sonar (408×728, vertical). Componente: `src/components/home/HeroVideos.jsx`.
+
+| Archivo | Peso | Quién lo descarga |
+|---|---|---|
+| `portada-gps.webm` · `portada-sonar.webm` (AV1) | 855 + 931 KB | Chrome, Edge, Firefox |
+| `portada-gps.mp4` · `portada-sonar.mp4` (H.264) | 1.096 + 1.148 KB | Safari y equipos sin AV1 |
+| `portada-*.webp` (póster) | 27 KB c/u | Todos, al cargar |
+
+Originales: 6,9 MB con audio. Codificación: sin audio, bucle continuo con
+fundido de 0,6 s, H.264 CRF 26 / AV1 CRF 38 (calidad verificada con SSIM).
+
+**Consumo por visita nueva** (plan Hobby de Render: 5 GB/mes): ~2,2 MB con AV1
+y ~2,7 MB en el peor caso (Safari) → **~1.850 visitas nuevas al mes** en el peor
+caso. Los videos no se descargan si el visitante activa "ahorro de datos" o
+"reducir movimiento", tiene conexión 2G, o (en móvil) no baja hasta ellos.
+Quien vuelve los tiene en caché 30 días (`render.yaml` → `headers`).
+
+Para reemplazar un video: generar ambos formatos con el mismo encuadre, darles
+un **nombre nuevo** (por la caché de 30 días) y actualizar `CLIPS` en el componente.
 
 ### Cabecera
 

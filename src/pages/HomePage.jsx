@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import {
   Anchor, Antenna, ArrowRight, Check, ClipboardCheck, Compass, Container, Fish,
-  HardHat, LifeBuoy, Map, MapPin, PackageCheck, Phone, Radar, RadioTower, Sailboat,
+  HardHat, LifeBuoy, Map, PackageCheck, Phone, Radar, RadioTower, Sailboat,
   ShieldCheck, Ship, Waves, Wrench, Cable,
 } from 'lucide-react';
 import SectionHead from '../components/common/SectionHead';
 import MarcaSlot from '../components/common/MarcaSlot';
+import HeroVideos from '../components/home/HeroVideos';
 import { useReveal } from '../hooks/useReveal';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { CATEGORIAS, MARCAS, PRODUCTOS } from '../data/catalogo';
@@ -74,23 +75,7 @@ export default function HomePage() {
             </div>
 
             <div className="hero__visual">
-              <figure className="hero__photo">
-                <picture>
-                  <source srcSet="/img/bahia-san-vicente.webp" type="image/webp" />
-                  <img
-                    src="/img/bahia-san-vicente.jpg"
-                    alt="Bahía de San Vicente con la flota pesquera fondeada, Región del Biobío"
-                    width="960"
-                    height="550"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                </picture>
-                <figcaption>
-                  <MapPin size={15} aria-hidden="true" />
-                  Bahía de San Vicente · Región del Biobío
-                </figcaption>
-              </figure>
+              <HeroVideos />
             </div>
           </div>
         </div>
