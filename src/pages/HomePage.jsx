@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import {
   Anchor, Antenna, ArrowRight, Check, ClipboardCheck, Compass, Container, Fish,
-  HardHat, LifeBuoy, Map, PackageCheck, Phone, Radar, RadioTower, Sailboat,
+  HardHat, LifeBuoy, Map, MapPin, PackageCheck, Phone, Radar, RadioTower, Sailboat,
   ShieldCheck, Ship, Waves, Wrench, Cable,
 } from 'lucide-react';
 import SectionHead from '../components/common/SectionHead';
@@ -74,11 +74,23 @@ export default function HomePage() {
             </div>
 
             <div className="hero__visual">
-              <div className="hero__slot">
-                <Waves size={44} strokeWidth={1.5} aria-hidden="true" />
-                <b>Imagen de portada</b>
-                <span>Reservado para una fotografía de embarcación o de equipo instalado a bordo.</span>
-              </div>
+              <figure className="hero__photo">
+                <picture>
+                  <source srcSet="/img/bahia-san-vicente.webp" type="image/webp" />
+                  <img
+                    src="/img/bahia-san-vicente.jpg"
+                    alt="Bahía de San Vicente con la flota pesquera fondeada, Región del Biobío"
+                    width="960"
+                    height="550"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                </picture>
+                <figcaption>
+                  <MapPin size={15} aria-hidden="true" />
+                  Bahía de San Vicente · Región del Biobío
+                </figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -126,13 +138,19 @@ export default function HomePage() {
           <div className="ds-container">
             <div className="spotlight__inner">
               <div className="spotlight__media">
-                <Fish size={46} strokeWidth={1.4} aria-hidden="true" />
-                <b style={{ fontSize: '.84rem', letterSpacing: '.14em', textTransform: 'uppercase' }}>
-                  Imagen del equipo
-                </b>
-                <span style={{ fontSize: '.84rem', color: '#A9CADF' }}>
-                  Espacio reservado para la fotografía oficial del {destacado.nombre}.
-                </span>
+                <span className="spotlight__glow" aria-hidden="true" />
+                <picture>
+                  <source srcSet="/img/furuno-fcv-800.webp" type="image/webp" />
+                  <img
+                    className="spotlight__img"
+                    src="/img/furuno-fcv-800.png"
+                    alt={`Ecosonda Furuno ${destacado.nombre}`}
+                    width="570"
+                    height="568"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </div>
 
               <div>
@@ -233,7 +251,7 @@ export default function HomePage() {
             descripcion="Equipamiento de fabricantes con respaldo de fábrica y servicio técnico propio en Chile."
           />
           <div className="ds-grid ds-grid--4">
-            {MARCAS.map((m) => <MarcaSlot marca={m} key={m.slug} />)}
+            {MARCAS.map((m) => <MarcaSlot marca={m} key={m.slug} alto={124} />)}
           </div>
           <div style={{ marginTop: 32 }}>
             <Link to="/marcas" className="ds-btn ds-btn--outline">

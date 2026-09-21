@@ -23,22 +23,22 @@ export const CATEGORIAS = [
 /**
  * Marcas representadas.
  *
- * `logo` apunta a un archivo dentro de `public/marcas/`. Mientras sea `null`,
- * la tarjeta muestra el nombre compuesto tipográficamente, que es una solución
- * válida en sí misma. Para usar el logotipo oficial basta con dejar el archivo
- * en esa carpeta (preferentemente SVG o PNG con fondo transparente) y escribir
- * aquí su ruta, p. ej. `logo: '/marcas/furuno.svg'`.
+ * `logo` apunta al logotipo original en `public/marcas/` (PNG recortado, con
+ * fondo transparente). `logoRatio` es su proporción ancho/alto: `MarcaSlot` la
+ * usa para que todos los logotipos ocupen una superficie visual parecida, sin
+ * importar si son cuadrados (ACR) o apaisados (GARMIN). Si una marca no tiene
+ * `logo`, la tarjeta compone el nombre tipográficamente.
  */
 export const MARCAS = [
-  { slug: 'furuno',  nombre: 'FURUNO',  logo: null, destacada: true,
+  { slug: 'furuno',  nombre: 'FURUNO',  logo: '/marcas/furuno.png', logoRatio: 2.19, destacada: true,
     desc: 'Electrónica marina japonesa: sonares, radares, sondas, GPS y comunicaciones. Es la línea sobre la que trabaja nuestro servicio técnico.' },
-  { slug: 'garmin',  nombre: 'GARMIN',  logo: null, destacada: false,
+  { slug: 'garmin',  nombre: 'GARMIN',  logo: '/marcas/garmin.png', logoRatio: 3.692, destacada: false,
     desc: 'Plóters, sondas y sistemas de navegación con cartografía integrada para embarcaciones menores y de recreo.' },
-  { slug: 'icom',    nombre: 'ICOM',    logo: null, destacada: false,
+  { slug: 'icom',    nombre: 'ICOM',    logo: '/marcas/icom.png', logoRatio: 2.117, destacada: false,
     desc: 'Radiocomunicación marina: equipos VHF y HF con llamada selectiva digital (LSD/DSC).' },
-  { slug: 'acr',     nombre: 'ACR',     logo: null, destacada: false,
+  { slug: 'acr',     nombre: 'ACR',     logo: '/marcas/acr.png', logoRatio: 1.0, destacada: false,
     desc: 'Equipamiento de seguridad y localización de emergencia: radiobalizas RLS/EPIRB, PLB y SART.' },
-  { slug: 'marport', nombre: 'MARPORT', logo: null, destacada: false,
+  { slug: 'marport', nombre: 'MARPORT', logo: '/marcas/marport.png', logoRatio: 3.542, destacada: false,
     desc: 'Sensores de monitoreo de captura y control de arte de pesca para flota industrial.' },
 ];
 

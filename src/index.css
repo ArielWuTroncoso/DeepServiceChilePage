@@ -60,12 +60,13 @@
   --font-ui: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* --- Medidas --- */
-  --header-h: 84px;
+  --header-h: 109px;   /* 84 px + 30 % */
   --container: 1240px;
   --gutter: clamp(20px, 5vw, 56px);
 
   color-scheme: light;
 }
+@media (max-width: 520px) { :root { --header-h: 92px; } }
 
 /* --- Modo oscuro: invierte las superficies claras hacia la escala azul --- */
 [data-theme="dark"] {

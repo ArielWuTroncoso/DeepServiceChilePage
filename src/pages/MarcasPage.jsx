@@ -25,7 +25,7 @@ export default function MarcasPage() {
               const total = PRODUCTOS.filter((p) => p.marca === m.slug).length;
               return (
                 <article className="ds-card ds-card--hover" key={m.slug} style={{ padding: 28, display: 'grid', gap: 16 }}>
-                  <MarcaSlot marca={m} alto={128} />
+                  <MarcaSlot marca={m} alto={140} />
                   <p style={{ color: 'var(--ink-soft)', lineHeight: 1.55, fontSize: '.95rem' }}>{m.desc}</p>
                   {total > 0 ? (
                     <Link to={`/productos?marca=${m.slug}`} className="pillar__more">

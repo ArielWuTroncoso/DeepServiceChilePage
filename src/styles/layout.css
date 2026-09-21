@@ -8,17 +8,17 @@
 .hdr.is-scrolled { background: rgba(6, 25, 43, .97); box-shadow: 0 6px 24px rgba(0,0,0,.28); }
 .hdr__bar { display: flex; align-items: center; justify-content: space-between; gap: 22px; height: var(--header-h); }
 
-.hdr__brand { display: flex; align-items: center; gap: 13px; color: #fff; flex: 0 0 auto; min-width: 0; }
-.ds-logo { display: block; flex: 0 0 auto; user-select: none; }
+.hdr__brand { display: flex; align-items: center; gap: 16px; color: #fff; flex: 0 0 auto; min-width: 0; }
+.ds-logo { display: block; flex: 0 0 auto; user-select: none; height: var(--logo-h, 48px); width: auto; aspect-ratio: 560 / 475; }
 .hdr__mark { flex: 0 0 auto; }
 .hdr__words { display: block; min-width: 0; }
 .hdr__name {
-  display: block; font-family: var(--font-display, inherit);
-  font-weight: 800; font-size: 1.32rem; letter-spacing: .11em;
+  display: block; font-family: var(--font-display);
+  font-weight: 800; font-size: 1.62rem; letter-spacing: .1em;
   line-height: 1; text-transform: uppercase; white-space: nowrap;
 }
 .hdr__name b { font-weight: 800; color: var(--b-300); }
-.hdr__tagline { display: block; margin-top: 6px; font-size: .58rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--b-200); white-space: nowrap; }
+.hdr__tagline { display: block; margin-top: 7px; font-size: .68rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--b-200); white-space: nowrap; }
 
 /* En pantallas estrechas el bloque de marca debe poder encogerse y el nombre
    parte en dos líneas; si no, empuja los botones fuera de la cabecera. */
@@ -26,15 +26,15 @@
   .hdr__bar { gap: 12px; }
   .hdr__brand { flex: 0 1 auto; min-width: 0; gap: 10px; }
   .hdr__name {
-    white-space: normal; font-size: 1.14rem; letter-spacing: .06em; line-height: 1.04;
+    white-space: normal; font-size: 1.24rem; letter-spacing: .06em; line-height: 1.04;
   }
   .hdr__tagline { display: none; }
-  .hdr__mark { height: 40px; }
+  .hdr__mark { height: 64px; }
   .hdr__actions { gap: 6px; }
 }
 @media (max-width: 360px) {
-  .hdr__name { font-size: 1.02rem; }
-  .hdr__mark { height: 34px; }
+  .hdr__name { font-size: 1.06rem; }
+  .hdr__mark { height: 54px; }
   .hdr__icon-btn { width: 36px; height: 36px; }
 }
 
@@ -70,6 +70,12 @@
 .hdr__mobile .hdr__link { padding: 13px 14px; font-size: 1rem; }
 .hdr__mobile-cta { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 
+@media (max-width: 1240px) and (min-width: 1041px) {
+  .hdr__bar { gap: 14px; }
+  .hdr__mark { height: 68px; }
+  .hdr__name { font-size: 1.36rem; }
+  .hdr__link { padding: 10px 10px; }
+}
 @media (max-width: 1040px) {
   .hdr__nav, .hdr__actions .ds-btn { display: none; }
   .hdr__burger { display: grid; }

@@ -26,9 +26,10 @@ export default function Logo({ size = 46, variante = 'blanco', className = '', d
       src={FUENTES[variante] ?? FUENTES.blanco}
       width={ancho}
       height={alto}
-      /* Alto fijo y ancho derivado: así una media query puede cambiar sólo
-         el alto y el óvalo nunca se deforma. */
-      style={{ height: alto, width: 'auto', aspectRatio: `${ancho} / ${alto}` }}
+      /* El alto viaja como variable CSS (no como `height` en línea) para que
+         las media queries puedan cambiarlo; el ancho se deriva de la proporción
+         del óvalo, así que nunca se deforma. */
+      style={{ '--logo-h': `${alto}px` }}
       alt={decorativo ? '' : 'Deep Service Chile'}
       aria-hidden={decorativo || undefined}
       draggable="false"

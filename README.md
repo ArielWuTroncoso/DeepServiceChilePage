@@ -65,7 +65,8 @@ contraseña: DeepService2026        ← cambiar en el primer ingreso
 ```
 public/
 ├── marca/                      Logotipo oficial de Deep Service (blanco y azul)
-├── marcas/                     Logotipos de las marcas representadas (ver LEEME)
+├── marcas/                     Logotipos originales: furuno, garmin, icom, acr, marport
+├── img/                        Fotografías: bahía de San Vicente (portada) y FCV-800
 └── favicon.ico · favicon.png · apple-touch-icon.png
 
 src/
@@ -109,11 +110,30 @@ El nombre de marca se compone en Barlow Condensed junto al emblema:
 
 ### Logotipos de las marcas representadas
 
-`public/marcas/` está preparada para recibir los archivos oficiales de FURUNO,
-GARMIN, ICOM, ACR y MARPORT (ver `public/marcas/LEEME.txt`). Mientras el campo
-`logo` de cada marca en `src/data/catalogo.js` sea `null`, el componente
-`MarcaSlot` compone el nombre tipográficamente, que es una solución válida y no
-deja huecos en la retícula.
+`public/marcas/` contiene los logotipos originales de FURUNO, GARMIN, ICOM, ACR y
+MARPORT, recortados y con fondo transparente. En `src/data/catalogo.js` cada marca
+lleva `logo` (ruta) y `logoRatio` (ancho/alto). `MarcaSlot` usa esa proporción
+para que todos ocupen una superficie visual parecida, y los muestra sobre una
+placa blanca fija para respetar sus colores también en modo oscuro.
+
+Para agregar una marca: dejar su PNG/SVG en `public/marcas/`, añadirla a `MARCAS`
+con su `logoRatio` y, si debe existir en la base, a `DataSeeder.java`.
+
+### Fotografías
+
+| Archivo | Dónde | Notas |
+|---|---|---|
+| `img/bahia-san-vicente.webp/.jpg` | Portada | 960 × 550, resolución nativa |
+| `img/furuno-fcv-800.webp/.png` | Producto destacado | Recorte con fondo transparente, 570 × 568 |
+
+Ambas se sirven a su tamaño real (sin ampliar) y en WebP con respaldo JPG/PNG.
+
+### Cabecera
+
+`--header-h` en `src/index.css` controla la altura (109 px en escritorio, 92 px en
+móvil) y todo lo que depende de ella: el relleno superior del contenido, los
+filtros y la galería fijos del catálogo. El alto del logo se ajusta en
+`Header.jsx` (`size`) y en las media queries de `.hdr__mark`.
 
 ---
 
@@ -205,11 +225,10 @@ El sitio incluye **modo claro y oscuro**; el conmutador vive en la cabecera.
 
 ## Pendientes antes de publicar
 
-- [ ] **Imágenes**: el catálogo queda deliberadamente sin fotografías. Cada tarjeta
+- [ ] **Imágenes del catálogo**: las tarjetas y fichas de producto siguen sin
+      fotografías (sólo la portada y el bloque destacado tienen). Cada tarjeta
       y ficha dibuja un marco vacío. Al cargar el material basta con completar
       `imagenUrl` en la API (o `imagen` en `src/data/catalogo.js`).
-- [ ] **Logotipos de marcas**: dejar los archivos oficiales en `public/marcas/`
-      y apuntar el campo `logo` de cada marca en `src/data/catalogo.js`.
 - [ ] **Fichas técnicas**: sólo el FCV-800 tiene especificaciones verificadas.
       El resto está marcado como *ficha en preparación*, y los productos asignados
       a GARMIN, ICOM, ACR y MARPORT son marcadores de estructura: hay que

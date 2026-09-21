@@ -38,7 +38,7 @@ export default function Header() {
       <div className="ds-container">
         <div className="hdr__bar">
           <Link to="/" className="hdr__brand" aria-label="Deep Service Chile, ir al inicio">
-            <Logo className="hdr__mark" size={48} decorativo />
+            <Logo className="hdr__mark" size={80} decorativo />
             <span className="hdr__words">
               <span className="hdr__name">Deep Service <b>Chile</b></span>
               <span className="hdr__tagline">Electrónica marina</span>
