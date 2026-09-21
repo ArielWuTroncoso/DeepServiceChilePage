@@ -95,10 +95,17 @@ public class DataSeeder implements CommandLineRunner {
     private void sembrarMarcas() {
         marcas.saveAll(List.of(
                 new Marca("furuno", "FURUNO",
-                        "Electronica marina japonesa: sondas, radares, GPS y comunicaciones.", true),
-                new Marca("marca-2", "Marca 2", "Pendiente de definir.", false),
-                new Marca("marca-3", "Marca 3", "Pendiente de definir.", false),
-                new Marca("marca-4", "Marca 4", "Pendiente de definir.", false)));
+                        "Electronica marina japonesa: sonares, radares, sondas, GPS y comunicaciones. "
+                                + "Es la linea sobre la que trabaja nuestro servicio tecnico.", true),
+                new Marca("garmin", "GARMIN",
+                        "Ploters, sondas y sistemas de navegacion con cartografia integrada "
+                                + "para embarcaciones menores y de recreo.", false),
+                new Marca("icom", "ICOM",
+                        "Radiocomunicacion marina: equipos VHF y HF con llamada selectiva digital (LSD/DSC).", false),
+                new Marca("acr", "ACR",
+                        "Equipamiento de seguridad y localizacion de emergencia: radiobalizas RLS/EPIRB, PLB y SART.", false),
+                new Marca("marport", "MARPORT",
+                        "Sensores de monitoreo de captura y control de arte de pesca para flota industrial.", false)));
     }
 
     private void sembrarProductos() {
@@ -146,18 +153,28 @@ public class DataSeeder implements CommandLineRunner {
                         "Gobierno automatico de rumbo."),
                 pendiente("pantalla-multifuncion", "Pantalla multifuncion", "Pantalla multifuncion", nav, furuno,
                         "Integra sonda, radar y cartografia en una sola pantalla."),
-                pendiente("radio-vhf", "Radio VHF", "Radiotelefono", com, furuno,
+                pendiente("radio-vhf", "Radio VHF", "Radiotelefono", com, marca("icom"),
                         "Comunicacion en banda marina VHF con LSD."),
+                pendiente("radio-hf", "Radio HF / SSB", "Radiotelefono", com, marca("icom"),
+                        "Comunicacion de largo alcance en banda marina HF."),
+                pendiente("comunicacion-satelital", "Comunicacion satelital", "Satelital", com, furuno,
+                        "Voz y datos fuera de cobertura costera."),
                 pendiente("transponder-ais", "Transpondedor AIS", "AIS", com, furuno,
                         "Identificacion automatica de embarcaciones."),
-                pendiente("radiobaliza-epirb", "Radiobaliza EPIRB", "Emergencia", seg, marca("marca-3"),
+                pendiente("radiobaliza-epirb", "Radiobaliza RLS / EPIRB", "Emergencia", seg, marca("acr"),
                         "Baliza de emergencia con posicionamiento satelital."),
                 pendiente("registrador-vdr", "Registrador VDR", "VDR", seg, furuno,
                         "Registro de datos de travesia segun normativa."),
                 pendiente("transductor-chirp", "Transductor CHIRP", "Transductor", acc, furuno,
                         "Transductor de banda ancha para sondas CHIRP."),
                 pendiente("antena-gps", "Antena GPS", "Antena", acc, furuno,
-                        "Antena receptora para sistemas de posicionamiento.")));
+                        "Antena receptora para sistemas de posicionamiento."),
+                pendiente("cableado-conectores", "Cableado y conectores", "Instalacion", acc, furuno,
+                        "Insumos de instalacion para electronica marina."),
+                pendiente("sensores-captura", "Sensores de captura", "Monitoreo de arte", pesca, marca("marport"),
+                        "Monitoreo en tiempo real del arte de pesca y del volumen capturado."),
+                pendiente("ploter-cartografico", "Ploter cartografico", "GPS / Ploter", nav, marca("garmin"),
+                        "Navegacion con cartografia integrada para embarcaciones menores.")));
 
         log.info("Catalogo inicial cargado: {} productos.", productos.count());
     }

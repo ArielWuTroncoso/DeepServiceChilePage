@@ -8,7 +8,7 @@ import { useAuth } from '../../context/useAuth';
 export const NAV = [
   { to: '/', label: 'Inicio', exact: true },
   { to: '/productos', label: 'Productos' },
-  { to: '/servicios', label: 'Servicios' },
+  { to: '/servicios', label: 'Servicio técnico' },
   { to: '/marcas', label: 'Marcas' },
   { to: '/nosotros', label: 'Nosotros' },
   { to: '/contacto', label: 'Contacto' },
@@ -38,9 +38,9 @@ export default function Header() {
       <div className="ds-container">
         <div className="hdr__bar">
           <Link to="/" className="hdr__brand" aria-label="Deep Service Chile, ir al inicio">
-            <Logo className="hdr__mark" size={46} />
-            <span>
-              <span className="hdr__name">DEEP SERVICE</span>
+            <Logo className="hdr__mark" size={48} decorativo />
+            <span className="hdr__words">
+              <span className="hdr__name">Deep Service <b>Chile</b></span>
               <span className="hdr__tagline">Electrónica marina</span>
             </span>
           </Link>

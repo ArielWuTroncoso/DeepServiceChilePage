@@ -20,12 +20,26 @@ export const CATEGORIAS = [
   { slug: 'accesorios',      nombre: 'Accesorios',           desc: 'Transductores, antenas, cables, soportes y repuestos.',                  icono: 'Cable' },
 ];
 
+/**
+ * Marcas representadas.
+ *
+ * `logo` apunta a un archivo dentro de `public/marcas/`. Mientras sea `null`,
+ * la tarjeta muestra el nombre compuesto tipográficamente, que es una solución
+ * válida en sí misma. Para usar el logotipo oficial basta con dejar el archivo
+ * en esa carpeta (preferentemente SVG o PNG con fondo transparente) y escribir
+ * aquí su ruta, p. ej. `logo: '/marcas/furuno.svg'`.
+ */
 export const MARCAS = [
-  { slug: 'furuno', nombre: 'FURUNO', desc: 'Electrónica marina japonesa. Sondas, radares, GPS y comunicaciones.', destacada: true },
-  // TODO: completar con el resto de marcas representadas por Deep Service.
-  { slug: 'marca-2', nombre: 'Marca 2', desc: 'Pendiente de definir.', destacada: false },
-  { slug: 'marca-3', nombre: 'Marca 3', desc: 'Pendiente de definir.', destacada: false },
-  { slug: 'marca-4', nombre: 'Marca 4', desc: 'Pendiente de definir.', destacada: false },
+  { slug: 'furuno',  nombre: 'FURUNO',  logo: null, destacada: true,
+    desc: 'Electrónica marina japonesa: sonares, radares, sondas, GPS y comunicaciones. Es la línea sobre la que trabaja nuestro servicio técnico.' },
+  { slug: 'garmin',  nombre: 'GARMIN',  logo: null, destacada: false,
+    desc: 'Plóters, sondas y sistemas de navegación con cartografía integrada para embarcaciones menores y de recreo.' },
+  { slug: 'icom',    nombre: 'ICOM',    logo: null, destacada: false,
+    desc: 'Radiocomunicación marina: equipos VHF y HF con llamada selectiva digital (LSD/DSC).' },
+  { slug: 'acr',     nombre: 'ACR',     logo: null, destacada: false,
+    desc: 'Equipamiento de seguridad y localización de emergencia: radiobalizas RLS/EPIRB, PLB y SART.' },
+  { slug: 'marport', nombre: 'MARPORT', logo: null, destacada: false,
+    desc: 'Sensores de monitoreo de captura y control de arte de pesca para flota industrial.' },
 ];
 
 export const PRODUCTOS = [
@@ -82,13 +96,16 @@ export const PRODUCTOS = [
   { id: 6, slug: 'gps-plotter', nombre: 'GPS / Plóter', marca: 'furuno', categoria: 'navegacion', subcategoria: 'GPS / Plóter', destacado: false, completo: false, resumen: 'Posicionamiento y cartografía electrónica.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
   { id: 7, slug: 'piloto-automatico', nombre: 'Piloto automático', marca: 'furuno', categoria: 'navegacion', subcategoria: 'Piloto automático', destacado: false, completo: false, resumen: 'Gobierno automático de rumbo.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
   { id: 8, slug: 'pantalla-multifuncion', nombre: 'Pantalla multifunción', marca: 'furuno', categoria: 'navegacion', subcategoria: 'Pantalla multifunción', destacado: false, completo: false, resumen: 'Integra sonda, radar y cartografía en una sola pantalla.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
-  { id: 9, slug: 'radio-vhf', nombre: 'Radio VHF', marca: 'furuno', categoria: 'comunicaciones', subcategoria: 'Radioteléfono', destacado: false, completo: false, resumen: 'Comunicación en banda marina VHF con LSD.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 9, slug: 'radio-vhf', nombre: 'Radio VHF', marca: 'icom', categoria: 'comunicaciones', subcategoria: 'Radioteléfono', destacado: false, completo: false, resumen: 'Comunicación en banda marina VHF con LSD.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
   { id: 10, slug: 'transponder-ais', nombre: 'Transpondedor AIS', marca: 'furuno', categoria: 'comunicaciones', subcategoria: 'AIS', destacado: false, completo: false, resumen: 'Identificación automática de embarcaciones.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
-  { id: 11, slug: 'comunicacion-satelital', nombre: 'Comunicación satelital', marca: 'marca-2', categoria: 'comunicaciones', subcategoria: 'Satelital', destacado: false, completo: false, resumen: 'Voz y datos fuera de cobertura costera.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
-  { id: 12, slug: 'radiobaliza-epirb', nombre: 'Radiobaliza EPIRB', marca: 'marca-3', categoria: 'seguridad', subcategoria: 'Emergencia', destacado: false, completo: false, resumen: 'Baliza de emergencia con posicionamiento satelital.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 11, slug: 'comunicacion-satelital', nombre: 'Comunicación satelital', marca: 'furuno', categoria: 'comunicaciones', subcategoria: 'Satelital', destacado: false, completo: false, resumen: 'Voz y datos fuera de cobertura costera.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 12, slug: 'radiobaliza-epirb', nombre: 'Radiobaliza RLS / EPIRB', marca: 'acr', categoria: 'seguridad', subcategoria: 'Emergencia', destacado: false, completo: false, resumen: 'Baliza de emergencia con posicionamiento satelital.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
   { id: 13, slug: 'registrador-vdr', nombre: 'Registrador VDR', marca: 'furuno', categoria: 'seguridad', subcategoria: 'VDR', destacado: false, completo: false, resumen: 'Registro de datos de travesía según normativa.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
   { id: 14, slug: 'antena-gps', nombre: 'Antena GPS', marca: 'furuno', categoria: 'accesorios', subcategoria: 'Antena', destacado: false, completo: false, resumen: 'Antena receptora para sistemas de posicionamiento.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
-  { id: 15, slug: 'cableado-conectores', nombre: 'Cableado y conectores', marca: 'marca-4', categoria: 'accesorios', subcategoria: 'Instalación', destacado: false, completo: false, resumen: 'Insumos de instalación para electrónica marina.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 15, slug: 'cableado-conectores', nombre: 'Cableado y conectores', marca: 'furuno', categoria: 'accesorios', subcategoria: 'Instalación', destacado: false, completo: false, resumen: 'Insumos de instalación para electrónica marina.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 16, slug: 'sensores-captura', nombre: 'Sensores de captura', marca: 'marport', categoria: 'pesca', subcategoria: 'Monitoreo de arte', destacado: false, completo: false, resumen: 'Monitoreo en tiempo real del arte de pesca y del volumen capturado.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 17, slug: 'ploter-cartografico', nombre: 'Plóter cartográfico', marca: 'garmin', categoria: 'navegacion', subcategoria: 'GPS / Plóter', destacado: false, completo: false, resumen: 'Navegación con cartografía integrada para embarcaciones menores.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
+  { id: 18, slug: 'radio-hf', nombre: 'Radio HF / SSB', marca: 'icom', categoria: 'comunicaciones', subcategoria: 'Radioteléfono', destacado: false, completo: false, resumen: 'Comunicación de largo alcance en banda marina HF.', descripcion: 'Ficha por completar.', especificaciones: [], destacados: [], chips: [], imagen: null, galeria: [] },
 ];
 
 export const nombreCategoria = (slug) => CATEGORIAS.find((c) => c.slug === slug)?.nombre ?? slug;

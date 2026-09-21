@@ -8,10 +8,35 @@
 .hdr.is-scrolled { background: rgba(6, 25, 43, .97); box-shadow: 0 6px 24px rgba(0,0,0,.28); }
 .hdr__bar { display: flex; align-items: center; justify-content: space-between; gap: 22px; height: var(--header-h); }
 
-.hdr__brand { display: flex; align-items: center; gap: 14px; color: #fff; flex: 0 0 auto; }
-.hdr__mark { width: 46px; height: 46px; flex: 0 0 auto; }
-.hdr__name { display: block; font-weight: 800; font-size: 1.15rem; letter-spacing: .17em; line-height: 1; }
-.hdr__tagline { display: block; margin-top: 5px; font-size: .6rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--b-200); }
+.hdr__brand { display: flex; align-items: center; gap: 13px; color: #fff; flex: 0 0 auto; min-width: 0; }
+.ds-logo { display: block; flex: 0 0 auto; user-select: none; }
+.hdr__mark { flex: 0 0 auto; }
+.hdr__words { display: block; min-width: 0; }
+.hdr__name {
+  display: block; font-family: var(--font-display, inherit);
+  font-weight: 800; font-size: 1.32rem; letter-spacing: .11em;
+  line-height: 1; text-transform: uppercase; white-space: nowrap;
+}
+.hdr__name b { font-weight: 800; color: var(--b-300); }
+.hdr__tagline { display: block; margin-top: 6px; font-size: .58rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--b-200); white-space: nowrap; }
+
+/* En pantallas estrechas el bloque de marca debe poder encogerse y el nombre
+   parte en dos líneas; si no, empuja los botones fuera de la cabecera. */
+@media (max-width: 520px) {
+  .hdr__bar { gap: 12px; }
+  .hdr__brand { flex: 0 1 auto; min-width: 0; gap: 10px; }
+  .hdr__name {
+    white-space: normal; font-size: 1.14rem; letter-spacing: .06em; line-height: 1.04;
+  }
+  .hdr__tagline { display: none; }
+  .hdr__mark { height: 40px; }
+  .hdr__actions { gap: 6px; }
+}
+@media (max-width: 360px) {
+  .hdr__name { font-size: 1.02rem; }
+  .hdr__mark { height: 34px; }
+  .hdr__icon-btn { width: 36px; height: 36px; }
+}
 
 .hdr__nav { display: flex; align-items: center; gap: 4px; }
 .hdr__link {
@@ -71,7 +96,7 @@
 .ftr__sep { width: 1px; height: 26px; background: var(--line-dark); }
 
 .ftr__main { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: clamp(26px, 4vw, 52px); padding: clamp(40px, 5vw, 60px) 0; }
-.ftr__brand { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; color: #fff; }
+.ftr__brand { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; color: #fff; flex-wrap: wrap; }
 .ftr__about { font-size: .92rem; line-height: 1.6; max-width: 34ch; }
 .ftr h4 { color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 18px; }
 .ftr ul { list-style: none; display: grid; gap: 11px; }

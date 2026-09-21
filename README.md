@@ -14,6 +14,7 @@ separados o como uno solo.
 | Capa | Tecnología |
 |---|---|
 | Frontend | React 19 · Vite · React Router 7 · Tailwind 4 · lucide-react · framer-motion |
+| Tipografías | Autoalojadas con `@fontsource` (Inter + Barlow Condensed) |
 | Backend | Spring Boot 3.4 · Java 21 · Spring Security + JWT · Spring Data JPA |
 | Base de datos | PostgreSQL en producción · H2 en memoria en desarrollo |
 | Migraciones | Flyway (opcional, `FLYWAY_ENABLED=true`) |
@@ -62,14 +63,19 @@ contraseña: DeepService2026        ← cambiar en el primer ingreso
 ## Estructura
 
 ```
+public/
+├── marca/                      Logotipo oficial de Deep Service (blanco y azul)
+├── marcas/                     Logotipos de las marcas representadas (ver LEEME)
+└── favicon.ico · favicon.png · apple-touch-icon.png
+
 src/
-├── main.jsx · App.jsx          Arranque y enrutado
+├── main.jsx · App.jsx          Arranque, tipografías y enrutado
 ├── index.css                   Sistema de diseño (tokens y primitivas)
 ├── styles/                     Hojas por área: layout, home, catálogo, formularios
 ├── context/                    AuthContext · ThemeContext (modo claro/oscuro)
 ├── services/                   apiClient, auth, catálogo, contacto
 ├── hooks/                      useReveal, useDocumentTitle
-├── components/                 layout · common · skeletons
+├── components/                 layout · common (Logo, MarcaSlot) · skeletons
 ├── features/catalogo/          Tarjeta de producto y filtros
 ├── data/                       empresa.js · catalogo.js (respaldo del frontend)
 ├── pages/                      Home, Productos, Producto, Servicios, Marcas,
@@ -77,6 +83,53 @@ src/
 └── main/java/cl/deepservice/   model · dto · repository · service · controller
                                 security · exception · web · config
 ```
+
+---
+
+## Marca
+
+El logotipo oficial vive en `public/marca/` en dos versiones, ambas con el óvalo
+completo y sin deformación:
+
+| Archivo | Uso |
+|---|---|
+| `deep-service-blanco.png` | Fondos oscuros (cabecera, pie) |
+| `deep-service-azul.png` | Fondos claros y previsualizaciones sociales |
+
+`src/components/layout/Logo.jsx` recibe la **altura** en píxeles y deriva el
+ancho a partir de la proporción real del óvalo, de modo que nunca se distorsiona:
+
+```jsx
+<Logo size={48} />                    {/* versión blanca, fondos oscuros */}
+<Logo size={64} variante="azul" />    {/* versión azul, fondos claros    */}
+```
+
+El nombre de marca se compone en Barlow Condensed junto al emblema:
+**DEEP SERVICE** en blanco y **CHILE** en el azul de acento.
+
+### Logotipos de las marcas representadas
+
+`public/marcas/` está preparada para recibir los archivos oficiales de FURUNO,
+GARMIN, ICOM, ACR y MARPORT (ver `public/marcas/LEEME.txt`). Mientras el campo
+`logo` de cada marca en `src/data/catalogo.js` sea `null`, el componente
+`MarcaSlot` compone el nombre tipográficamente, que es una solución válida y no
+deja huecos en la retícula.
+
+---
+
+## Servicios
+
+El contenido de la página de servicio técnico está tomado del sitio vigente
+(`deepservicechile.cl/servicio.php`) y vive en `src/data/empresa.js`:
+
+| Export | Contenido |
+|---|---|
+| `SERVICIOS` | Los siete servicios declarados, con sus modelos y alcances |
+| `ENTIDAD_TECNICA` | Los cuatro servicios habilitados como entidad técnica aprobada |
+| `CLIENTES` | Perfil de clientes (artesanal, industrial, navieras, mercantes) |
+| `INTRO_SERVICIOS` · `LEMA` | Textos institucionales |
+
+Editar ahí actualiza a la vez la portada, la página de servicio técnico y el pie.
 
 ---
 
@@ -108,12 +161,17 @@ src/
 1. **deep-service-backend** (Docker, `Dockerfile.backend`)
    `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_DRIVER=org.postgresql.Driver`
    `FRONTEND_ORIGINS` = URL pública del frontend
+   Health Check Path: `/api/salud`
 2. **deep-service-frontend** (sitio estático, `npm run build:spa` → `dist/`)
    `VITE_API_URL` = URL pública del backend
 
 Alternativa de **un solo servicio**: usa el `Dockerfile` de la raíz, que compila
 el SPA dentro de los recursos estáticos de Spring Boot. En ese caso `VITE_API_URL`
 queda vacío y `SpaController` resuelve las rutas del router.
+
+> El backend ya trae datos sembrados. Si cambian las marcas o los productos en
+> `DataSeeder.java`, hay que vaciar las tablas o subir la versión de Flyway para
+> que la base los vuelva a cargar.
 
 ---
 
@@ -133,7 +191,10 @@ alternando peldaños, no agregando colores.
 | `--paper` `#F5FAFD` | fondo claro |
 | `--ink` `#082439` | texto principal |
 
-Tipografías: **Barlow Condensed** para títulos, **Inter** para el resto.
+Tipografías: **Barlow Condensed** para títulos, **Inter** para el resto. Ambas se
+empaquetan con el sitio vía `@fontsource` (importadas en `src/main.jsx`), así que
+no dependen de un servicio externo ni producen salto de fuente al cargar.
+
 Primitivas reutilizadas del afiche: `.ds-barlabel` (barra azul de sección),
 `.ds-chip` (ficha de dato técnico), `.ds-tri` (viñeta triangular),
 `.ds-badge` (insignia de icono) y `.ds-dark` (bloque oscuro a sangre).
@@ -147,13 +208,12 @@ El sitio incluye **modo claro y oscuro**; el conmutador vive en la cabecera.
 - [ ] **Imágenes**: el catálogo queda deliberadamente sin fotografías. Cada tarjeta
       y ficha dibuja un marco vacío. Al cargar el material basta con completar
       `imagenUrl` en la API (o `imagen` en `src/data/catalogo.js`).
-- [ ] **Logotipo**: `src/components/layout/Logo.jsx` dibuja un emblema de respaldo.
-      Reemplazar por el logotipo oficial calado en blanco.
+- [ ] **Logotipos de marcas**: dejar los archivos oficiales en `public/marcas/`
+      y apuntar el campo `logo` de cada marca en `src/data/catalogo.js`.
 - [ ] **Fichas técnicas**: sólo el FCV-800 tiene especificaciones verificadas.
-      El resto está marcado como *ficha en preparación*.
-- [ ] **Marcas**: confirmar la lista completa de representaciones (hoy sólo
-      FURUNO está identificada; las demás son marcadores de posición).
+      El resto está marcado como *ficha en preparación*, y los productos asignados
+      a GARMIN, ICOM, ACR y MARPORT son marcadores de estructura: hay que
+      confirmar qué equipos de cada marca se ofrecen realmente.
 - [ ] **Datos de contacto**: confirmar correo corporativo y dirección física en
       `src/data/empresa.js`.
 - [ ] **Credencial del administrador**: cambiar la contraseña inicial.
-# DeepServiceChilePage

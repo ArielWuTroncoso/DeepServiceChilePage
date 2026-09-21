@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import {
-  Anchor, ArrowRight, Check, Compass, Container, Fish, HardHat, LifeBuoy,
-  PackageCheck, Phone, RadioTower, Sailboat, ShieldCheck, Ship, Waves, Wrench, Cable,
+  Anchor, Antenna, ArrowRight, Check, ClipboardCheck, Compass, Container, Fish,
+  HardHat, LifeBuoy, Map, PackageCheck, Phone, Radar, RadioTower, Sailboat,
+  ShieldCheck, Ship, Waves, Wrench, Cable,
 } from 'lucide-react';
 import SectionHead from '../components/common/SectionHead';
+import MarcaSlot from '../components/common/MarcaSlot';
 import { useReveal } from '../hooks/useReveal';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { CATEGORIAS, MARCAS, PRODUCTOS } from '../data/catalogo';
@@ -13,7 +15,11 @@ const ICONOS = {
   Fish, Compass, RadioTower, LifeBuoy, Cable,
   Ship, Anchor, Waves, Container, Sailboat, HardHat,
   PackageCheck, Wrench, ShieldCheck,
+  Radar, Antenna, ClipboardCheck, Map,
 };
+
+/* La portada muestra una selección; el listado completo vive en /servicios. */
+const SERVICIOS_PORTADA = ['mantenimiento-sonares', 'instalacion', 'inspecciones-gmdss'];
 const Icono = ({ nombre, ...props }) => {
   const C = ICONOS[nombre] ?? Fish;
   return <C {...props} />;
@@ -55,9 +61,9 @@ export default function HomePage() {
               </div>
               <div className="hero__stats">
                 {[
-                  { v: '4', l: 'Líneas de producto' },
-                  { v: '3', l: 'Servicios integrales' },
-                  { v: '2021', l: 'Desde' },
+                  { v: '5', l: 'Marcas representadas' },
+                  { v: '7', l: 'Servicios técnicos' },
+                  { v: 'ETA', l: 'Entidad técnica aprobada' },
                 ].map(({ v, l }) => (
                   <div className="ds-chip" key={l}>
                     <div className="ds-chip__v">{v}</div>
@@ -170,12 +176,12 @@ export default function HomePage() {
       <section className="ds-section">
         <div className="ds-container">
           <SectionHead
-            barra="Servicios"
+            barra="Servicio técnico"
             titulo="No sólo vendemos el equipo"
-            descripcion="El equipamiento marino vale por cómo queda instalado y por quién responde cuando falla. Esas dos cosas las hacemos nosotros."
+            descripcion="Nuestro servicio técnico está capacitado para realizar todo tipo de servicio electrónico, dando soluciones rápidas y eficientes a las necesidades de nuestros clientes."
           />
           <div className="ds-grid ds-grid--3">
-            {SERVICIOS.map((s) => (
+            {SERVICIOS.filter((s) => SERVICIOS_PORTADA.includes(s.slug)).map((s) => (
               <article className="ds-card ds-card--hover svc" key={s.slug}>
                 <span className="ds-badge" aria-hidden="true"><Icono nombre={s.icono} size={26} /></span>
                 <div>
@@ -192,7 +198,7 @@ export default function HomePage() {
           </div>
           <div style={{ marginTop: 32 }}>
             <Link to="/servicios" className="ds-btn ds-btn--outline">
-              Conocer los servicios en detalle <ArrowRight size={17} />
+              Ver los {SERVICIOS.length} servicios <ArrowRight size={17} />
             </Link>
           </div>
         </div>
@@ -224,15 +230,10 @@ export default function HomePage() {
           <SectionHead
             barra="Representaciones"
             titulo="Marcas que trabajamos"
-            descripcion="Equipamiento de fabricantes con soporte y repuestos garantizados."
+            descripcion="Equipamiento de fabricantes con respaldo de fábrica y servicio técnico propio en Chile."
           />
           <div className="ds-grid ds-grid--4">
-            {MARCAS.map((m) => (
-              <div className="brand-slot" key={m.slug}>
-                <strong>{m.nombre}</strong>
-                <span>{m.destacada ? 'Representada' : 'Logotipo pendiente'}</span>
-              </div>
-            ))}
+            {MARCAS.map((m) => <MarcaSlot marca={m} key={m.slug} />)}
           </div>
           <div style={{ marginTop: 32 }}>
             <Link to="/marcas" className="ds-btn ds-btn--outline">

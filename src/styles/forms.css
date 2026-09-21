@@ -20,8 +20,12 @@
 /* ===== Contacto ===== */
 .contact__layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(26px, 4vw, 52px); align-items: start; }
 @media (max-width: 900px) { .contact__layout { grid-template-columns: 1fr; } }
+.contact__layout > * { min-width: 0; }
 .contact__form { padding: clamp(24px, 3vw, 38px); }
 .contact__aside { display: grid; gap: 18px; }
+.contact__aside > * { min-width: 0; }
+.contact__item > * { min-width: 0; }
+.contact__item a, .contact__item span { overflow-wrap: anywhere; }
 .contact__block { padding: 26px 24px; }
 .contact__block h3 { font-size: 1.02rem; font-weight: 800; margin-bottom: 16px; }
 .contact__item { display: flex; gap: 13px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
@@ -63,7 +67,7 @@
 .prose li { display: flex; gap: 11px; align-items: flex-start; color: var(--ink-soft); line-height: 1.55; }
 .prose li svg { color: var(--b-500); flex: 0 0 auto; margin-top: 4px; }
 
-.stat-band { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.stat-band { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .stat { background: var(--surface); padding: 26px 22px; text-align: center; }
 .stat b { display: block; font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; color: var(--b-600); line-height: 1; }
 .stat span { display: block; margin-top: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }

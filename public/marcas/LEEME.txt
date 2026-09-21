@@ -1,0 +1,20 @@
+Logotipos de las marcas representadas
+=====================================
+
+Deja aquí los archivos oficiales de cada marca, preferentemente SVG o PNG con
+fondo transparente y el logotipo en un solo color (o en su color corporativo
+sobre fondo claro). Nombres sugeridos:
+
+  furuno.svg
+  garmin.svg
+  icom.svg
+  acr.svg
+  marport.svg
+
+Después, en `src/data/catalogo.js`, cambia el campo `logo: null` de cada marca
+por la ruta del archivo, por ejemplo:
+
+  { slug: 'furuno', nombre: 'FURUNO', logo: '/marcas/furuno.svg', ... }
+
+Mientras `logo` sea null la tarjeta muestra el nombre compuesto tipográficamente,
+que es una solución válida y no rompe el maquetado.

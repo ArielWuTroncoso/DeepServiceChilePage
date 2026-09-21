@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Instagram, Mail, MapPin, Phone, ShieldCheck, Wrench, PackageCheck } from 'lucide-react';
+import { ClipboardCheck, Instagram, Mail, MapPin, Phone, Radar, Wrench } from 'lucide-react';
 import Logo from './Logo';
 import { CONTACTO } from '../../data/empresa';
 
-const SERVICIOS = [
-  { icono: PackageCheck, label: 'Venta' },
+const FRANJA = [
+  { icono: Radar, label: 'Mantención' },
   { icono: Wrench, label: 'Instalación' },
-  { icono: ShieldCheck, label: 'Soporte técnico' },
+  { icono: ClipboardCheck, label: 'Inspecciones GMDSS' },
 ];
 
 export default function Footer() {
@@ -16,10 +16,10 @@ export default function Footer() {
     <footer className="ftr">
       <div className="ds-container">
         <div className="ftr__services">
-          {SERVICIOS.map(({ icono: Icono, label }, i) => (
+          {FRANJA.map(({ icono: Icono, label }, i) => (
             <div key={label} style={{ display: 'contents' }}>
               <span className="ftr__service"><Icono size={24} strokeWidth={2} />{label}</span>
-              {i < SERVICIOS.length - 1 && <span className="ftr__sep" aria-hidden="true" />}
+              {i < FRANJA.length - 1 && <span className="ftr__sep" aria-hidden="true" />}
             </div>
           ))}
         </div>
@@ -27,16 +27,17 @@ export default function Footer() {
         <div className="ftr__main">
           <div>
             <div className="ftr__brand">
-              <Logo size={52} />
-              <span>
-                <span className="hdr__name">DEEP SERVICE</span>
+              <Logo size={56} decorativo />
+              <span className="hdr__words">
+                <span className="hdr__name">Deep Service <b>Chile</b></span>
                 <span className="hdr__tagline">Electrónica marina</span>
               </span>
             </div>
             <p className="ftr__about">
               Soluciones y respaldo técnico en equipos electrónicos marinos asociados
-              a la navegación y la pesca. Representamos marcas líderes del sector y
-              acompañamos cada instalación con servicio propio.
+              a la navegación y la pesca. Entidad técnica aprobada por la administración
+              chilena para inspeccionar, certificar, instalar y reparar equipos de
+              navegación y seguridad.
             </p>
           </div>
 
@@ -54,7 +55,7 @@ export default function Footer() {
           <div>
             <h4>Empresa</h4>
             <ul>
-              <li><Link to="/servicios">Servicios</Link></li>
+              <li><Link to="/servicios">Servicio técnico</Link></li>
               <li><Link to="/marcas">Marcas</Link></li>
               <li><Link to="/nosotros">Quiénes somos</Link></li>
               <li><Link to="/contacto">Contacto</Link></li>

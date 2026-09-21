@@ -1,28 +1,37 @@
 /**
- * Marca de Deep Service.
- * Reemplazar `/logo.svg` en la carpeta public por el logotipo oficial
- * (versión calada en blanco para fondos oscuros). Mientras no exista,
- * se dibuja este emblema de respaldo para no romper el maquetado.
+ * Logotipo oficial de Deep Service Chile.
+ *
+ * Archivos en `public/marca/`:
+ *   · deep-service-blanco.png  → versión calada en blanco, para fondos oscuros.
+ *   · deep-service-azul.png    → versión azul marino, para fondos claros.
+ *
+ * El emblema es ovalado (proporción 560 × 475 ≈ 1,179:1). El componente recibe
+ * la ALTURA en píxeles y calcula el ancho, para que nunca se deforme.
  */
-export default function Logo({ size = 46, className = '' }) {
+
+const RATIO = 560 / 475;
+
+const FUENTES = {
+  blanco: '/marca/deep-service-blanco.png',
+  azul: '/marca/deep-service-azul.png',
+};
+
+export default function Logo({ size = 46, variante = 'blanco', className = '', decorativo = false }) {
+  const alto = size;
+  const ancho = Math.round(size * RATIO);
+
   return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      role="img"
-      aria-label="Deep Service"
-    >
-      <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" strokeWidth="2" opacity=".55" />
-      <circle cx="32" cy="2.5" r="2.5" fill="currentColor" />
-      <circle cx="32" cy="61.5" r="2.5" fill="currentColor" />
-      <circle cx="2.5" cy="32" r="2.5" fill="currentColor" />
-      <circle cx="61.5" cy="32" r="2.5" fill="currentColor" />
-      <path d="M13 38c5.5-3.6 10-3.6 15.5 0s10 3.6 15.5 0 5.5-2.7 7-1.8" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <path d="M13 46c5.5-3.6 10-3.6 15.5 0s10 3.6 15.5 0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity=".6" />
-      <path d="M32 14c4 4 6 8 6 12M32 14c-4 4-6 8-6 12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      <circle cx="32" cy="27" r="2.6" fill="currentColor" />
-    </svg>
+    <img
+      className={`ds-logo ${className}`.trim()}
+      src={FUENTES[variante] ?? FUENTES.blanco}
+      width={ancho}
+      height={alto}
+      /* Alto fijo y ancho derivado: así una media query puede cambiar sólo
+         el alto y el óvalo nunca se deforma. */
+      style={{ height: alto, width: 'auto', aspectRatio: `${ancho} / ${alto}` }}
+      alt={decorativo ? '' : 'Deep Service Chile'}
+      aria-hidden={decorativo || undefined}
+      draggable="false"
+    />
   );
 }

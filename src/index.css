@@ -57,7 +57,7 @@
 
   /* --- Tipografía --- */
   --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-ui: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* --- Medidas --- */
   --header-h: 84px;
@@ -184,7 +184,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .ds-btn:active { transform: translateY(0); }
 .ds-btn--primary { background: var(--b-600); color: #fff; box-shadow: 0 8px 20px rgba(28,102,153,.32); }
 .ds-btn--primary:hover { background: var(--b-500); }
-.ds-btn--light { background: #fff; color: var(--ink); box-shadow: var(--shadow-sm); }
+/* Botón blanco: siempre va sobre fondo oscuro, así que su texto no sigue a --ink
+   (que en modo oscuro se vuelve claro y dejaba el rótulo blanco sobre blanco). */
+.ds-btn--light { background: #fff; color: #082439; box-shadow: var(--shadow-sm); }
 .ds-btn--outline { background: transparent; border-color: var(--b-500); color: var(--b-600); }
 .ds-btn--outline:hover { background: rgba(35,130,190,.08); }
 .ds-btn--onDark { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.42); color: #fff; }

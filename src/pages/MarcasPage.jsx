@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import SectionHead from '../components/common/SectionHead';
+import MarcaSlot from '../components/common/MarcaSlot';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { MARCAS, PRODUCTOS } from '../data/catalogo';
 
@@ -24,17 +25,17 @@ export default function MarcasPage() {
               const total = PRODUCTOS.filter((p) => p.marca === m.slug).length;
               return (
                 <article className="ds-card ds-card--hover" key={m.slug} style={{ padding: 28, display: 'grid', gap: 16 }}>
-                  <div className="brand-slot" style={{ height: 120, borderStyle: 'solid' }}>
-                    <strong>{m.nombre}</strong>
-                    <span>{m.destacada ? 'Marca representada' : 'Logotipo pendiente'}</span>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.14rem', fontWeight: 800, marginBottom: 8 }}>{m.nombre}</h3>
-                    <p style={{ color: 'var(--ink-soft)', lineHeight: 1.55, fontSize: '.95rem' }}>{m.desc}</p>
-                  </div>
-                  <Link to={`/productos?marca=${m.slug}`} className="pillar__more">
-                    Ver {total} {total === 1 ? 'equipo' : 'equipos'} <ArrowRight size={15} />
-                  </Link>
+                  <MarcaSlot marca={m} alto={128} />
+                  <p style={{ color: 'var(--ink-soft)', lineHeight: 1.55, fontSize: '.95rem' }}>{m.desc}</p>
+                  {total > 0 ? (
+                    <Link to={`/productos?marca=${m.slug}`} className="pillar__more">
+                      Ver {total} {total === 1 ? 'equipo' : 'equipos'} <ArrowRight size={15} />
+                    </Link>
+                  ) : (
+                    <Link to="/contacto" className="pillar__more">
+                      Consultar por esta marca <ArrowRight size={15} />
+                    </Link>
+                  )}
                 </article>
               );
             })}
