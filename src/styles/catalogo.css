@@ -38,6 +38,15 @@
 }
 [data-theme="dark"] .prod__media { background: linear-gradient(160deg, var(--b-850), var(--b-900)); }
 .prod__media span { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
+/* Foto del equipo en la tarjeta: completa, sin deformar, con sombra de apoyo */
+.prod__media img {
+  /* Posición absoluta: la foto nunca estira el marco 4:3 de la tarjeta. */
+  position: absolute; inset: 18px; width: calc(100% - 36px); height: calc(100% - 36px);
+  object-fit: contain;
+  filter: drop-shadow(0 14px 18px rgba(8, 36, 57, .22));
+  transition: transform .35s ease;
+}
+.ds-card--hover:hover .prod__media img { transform: scale(1.035); }
 .prod__flag { position: absolute; top: 12px; left: 12px; }
 .prod__body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
 .prod__brand { font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--b-500); }
@@ -61,8 +70,36 @@
   display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 28px; color: var(--ink-faint);
 }
 [data-theme="dark"] .pdp__slot { background: linear-gradient(160deg, var(--b-850), var(--b-900)); }
+/* Imagen principal de la ficha */
+.pdp__main {
+  margin: 0; aspect-ratio: 1 / 1; border-radius: var(--radius-lg); overflow: hidden;
+  display: grid; place-items: center; padding: clamp(18px, 4%, 34px);
+  background: radial-gradient(circle at 50% 42%, #FFFFFF 0%, var(--paper-2) 62%, var(--paper-3) 100%);
+  border: 1px solid var(--line);
+}
+[data-theme="dark"] .pdp__main { background: radial-gradient(circle at 50% 42%, #164a72 0%, var(--b-850) 65%, var(--b-900) 100%); }
+.pdp__main img {
+  /* Tamaño natural como máximo: nunca se amplía una foto por sobre su resolución. */
+  width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain;
+  filter: drop-shadow(0 22px 26px rgba(8, 36, 57, .28));
+  animation: pdpfade .35s ease;
+}
+.pdp__main.is-cubrir { padding: 0; background: #06192B; }
+.pdp__main.is-cubrir img { filter: none; border-radius: 6px; }
+@keyframes pdpfade { from { opacity: 0; } to { opacity: 1; } }
+
 .pdp__thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.pdp__thumb { aspect-ratio: 1/1; border-radius: var(--radius-sm); border: 1px dashed var(--line); background: var(--paper-2); display: grid; place-items: center; color: var(--ink-faint); font-size: .68rem; }
+.pdp__thumb {
+  aspect-ratio: 1/1; border-radius: var(--radius-sm); border: 2px solid var(--line);
+  background: var(--paper-2); display: grid; place-items: center; padding: 6px;
+  cursor: pointer; overflow: hidden; transition: border-color .18s ease, transform .18s ease;
+}
+.pdp__thumb img { width: 100%; height: 100%; object-fit: contain; }
+.pdp__thumb.is-cubrir { padding: 0; background: #06192B; }
+.pdp__thumb.is-cubrir img { object-fit: cover; }
+.pdp__thumb:hover { border-color: var(--b-300); }
+.pdp__thumb.is-on { border-color: var(--b-500); }
+.pdp__thumb:focus-visible { outline: 2px solid var(--b-400); outline-offset: 2px; }
 [data-theme="dark"] .pdp__thumb { background: var(--b-850); }
 
 .pdp__brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }

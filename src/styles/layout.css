@@ -41,7 +41,7 @@
 .hdr__nav { display: flex; align-items: center; gap: 4px; }
 .hdr__link {
   position: relative; padding: 10px 14px; border-radius: var(--radius-sm);
-  color: var(--on-dark-soft); font-weight: 600; font-size: .92rem;
+  color: var(--on-dark-soft); font-weight: 600; font-size: .92rem; white-space: nowrap;
   transition: color .18s ease, background-color .18s ease;
 }
 .hdr__link:hover { color: #fff; background: rgba(155,219,247,.1); }
@@ -70,13 +70,14 @@
 .hdr__mobile .hdr__link { padding: 13px 14px; font-size: 1rem; }
 .hdr__mobile-cta { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 
-@media (max-width: 1240px) and (min-width: 1041px) {
+@media (max-width: 1360px) and (min-width: 1161px) {
   .hdr__bar { gap: 14px; }
   .hdr__mark { height: 68px; }
   .hdr__name { font-size: 1.36rem; }
   .hdr__link { padding: 10px 10px; }
 }
-@media (max-width: 1040px) {
+/* Con el logo grande, el menú completo cabe desde 1.161 px; bajo eso, menú hamburguesa. */
+@media (max-width: 1160px) {
   .hdr__nav, .hdr__actions .ds-btn { display: none; }
   .hdr__burger { display: grid; }
 }

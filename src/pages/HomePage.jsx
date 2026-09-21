@@ -125,11 +125,10 @@ export default function HomePage() {
               <div className="spotlight__media">
                 <span className="spotlight__glow" aria-hidden="true" />
                 <picture>
-                  <source srcSet="/img/furuno-fcv-800.webp" type="image/webp" />
                   <img
                     className="spotlight__img"
-                    src="/img/furuno-fcv-800.png"
-                    alt={`Ecosonda Furuno ${destacado.nombre}`}
+                    src={destacado.imagen}
+                    alt={`Sonda de pesca Furuno ${destacado.nombre}`}
                     width="570"
                     height="568"
                     loading="lazy"

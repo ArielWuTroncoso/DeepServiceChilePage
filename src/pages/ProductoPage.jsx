@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ImageOff, Phone } from 'lucide-react';
+import { ArrowLeft, Phone } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import EmptyState from '../components/common/EmptyState';
 import ProductoCard from '../features/catalogo/ProductoCard';
+import GaleriaProducto from '../features/catalogo/GaleriaProducto';
 import SectionHead from '../components/common/SectionHead';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { PRODUCTOS, nombreCategoria, nombreMarca } from '../data/catalogo';
@@ -28,7 +29,7 @@ export default function ProductoPage() {
     );
   }
 
-  const { nombre, subcategoria, marca, categoria, resumen, descripcion, especificaciones, destacados, chips, completo, galeria } = producto;
+  const { nombre, subcategoria, marca, categoria, resumen, descripcion, especificaciones, destacados, chips, completo, imagen, galeria } = producto;
   const relacionados = PRODUCTOS.filter((p) => p.categoria === categoria && p.slug !== slug).slice(0, 3);
 
   return (
@@ -44,18 +45,11 @@ export default function ProductoPage() {
         <div className="ds-container">
           <div className="pdp">
             <div className="pdp__media">
-              <div className="pdp__slot">
-                <ImageOff size={40} strokeWidth={1.4} aria-hidden="true" />
-                <b style={{ fontSize: '.82rem', letterSpacing: '.13em', textTransform: 'uppercase' }}>Imagen principal</b>
-                <span style={{ fontSize: '.85rem', maxWidth: '30ch', lineHeight: 1.5 }}>
-                  Espacio reservado para la fotografía oficial del equipo.
-                </span>
-              </div>
-              <div className="pdp__thumbs">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div className="pdp__thumb" key={i}>{galeria?.[i] ? '' : `Vista ${i + 1}`}</div>
-                ))}
-              </div>
+              <GaleriaProducto
+                key={slug}
+                nombre={nombre}
+                imagenes={galeria?.length ? galeria : (imagen ? [{ src: imagen, alt: nombre }] : [])}
+              />
             </div>
 
             <div>

@@ -66,7 +66,8 @@ contraseña: DeepService2026        ← cambiar en el primer ingreso
 public/
 ├── marca/                      Logotipo oficial de Deep Service (blanco y azul)
 ├── marcas/                     Logotipos originales: furuno, garmin, icom, acr, marport
-├── img/                        Fotografías: bahía de San Vicente y FCV-800 (destacado)
+├── img/                        Fotografía de la bahía de San Vicente (sin uso actual)
+├── productos/<slug>/NN.webp    Imágenes del catálogo (tarjeta + galería de cada ficha)
 ├── video/                      Videos de portada (AV1 .webm + H.264 .mp4) y sus pósters
 └── favicon.ico · favicon.png · apple-touch-icon.png
 
@@ -124,10 +125,29 @@ con su `logoRatio` y, si debe existir en la base, a `DataSeeder.java`.
 
 | Archivo | Dónde | Notas |
 |---|---|---|
-| `img/bahia-san-vicente.webp/.jpg` | Portada | 960 × 550, resolución nativa |
-| `img/furuno-fcv-800.webp/.png` | Producto destacado | Recorte con fondo transparente, 570 × 568 |
+| `img/bahia-san-vicente.webp/.jpg` | Disponible (antes en la portada) | 960 × 550, resolución nativa |
+| `productos/furuno-fcv-800/01.webp` | Producto destacado de la portada y catálogo | Recorte sin fondo, 570 × 568 |
 
-Ambas se sirven a su tamaño real (sin ampliar) y en WebP con respaldo JPG/PNG.
+### Catálogo con imágenes y fichas técnicas
+
+Fichas completas (`completo: true` en `src/data/catalogo.js`), traducidas y
+verificadas contra la documentación oficial Furuno:
+
+| Equipo | Fuente | Imágenes |
+|---|---|---|
+| FCV-800 · sonda de pesca | Folleto FCV-600/FCV-800 y furuno.es | 2 (ángulo, frente) |
+| CH-500 · sonar de búsqueda | Folleto CH-500 (CA000002208) y furuno.com | 4 (equipo, frente, unidades de casco, pantalla) |
+| CSH-5L MARK-2 · sonar de círculo completo | furuno.com, catálogo CSH-5L MARK-2 y furunousa.com | 1 |
+| MODEL 1815 · radar 8,4" | Folleto MODEL1815 (CA000001676) y furuno.com | 4 (frente, ángulo, pantalla TT, soporte) |
+
+Imágenes en `public/productos/<slug>/NN.webp`: fotos recortadas sin fondo (con
+transparencia) o, para pantallas y banners, con su fondo y `ajuste: 'cubrir'`.
+La ficha (`GaleriaProducto.jsx`) muestra la imagen principal a su tamaño real
+como máximo —nunca la amplía— y miniaturas para cambiar de vista.
+
+Para agregar un equipo: copiar el bloque de una ficha completa en
+`src/data/catalogo.js`, dejar sus imágenes en `public/productos/<slug>/` y, si
+debe existir en la base, replicarlo en `DataSeeder.java` con `ficha(...)`.
 
 ### Videos de portada
 
@@ -257,9 +277,8 @@ El sitio incluye **modo claro y oscuro**; el conmutador vive en la cabecera.
 
 ## Pendientes antes de publicar
 
-- [ ] **Imágenes del catálogo**: las tarjetas y fichas de producto siguen sin
-      fotografías (sólo la portada y el bloque destacado tienen). Cada tarjeta
-      y ficha dibuja un marco vacío. Al cargar el material basta con completar
+- [ ] **Imágenes del catálogo**: FCV-800, CH-500, CSH-5L MARK-2 y MODEL 1815 ya
+      tienen fotos y ficha completa; el resto sigue con marco vacío. Al cargar el material basta con completar
       `imagenUrl` en la API (o `imagen` en `src/data/catalogo.js`).
 - [ ] **Fichas técnicas**: sólo el FCV-800 tiene especificaciones verificadas.
       El resto está marcado como *ficha en preparación*, y los productos asignados
