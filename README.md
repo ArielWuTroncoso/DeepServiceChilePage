@@ -80,7 +80,8 @@ src/
 ├── hooks/                      useReveal, useDocumentTitle
 ├── components/                 layout · common (Logo, MarcaSlot) · skeletons
 ├── features/catalogo/          Tarjeta de producto y filtros
-├── data/                       empresa.js · catalogo.js (respaldo del frontend)
+├── data/                       empresa.js · catalogo.js (+ versiones .en.js en inglés)
+├── i18n/                       IdiomaContext (ES/EN), datos.js (hooks), errores.js
 ├── pages/                      Home, Productos, Producto, Servicios, Marcas,
 │                               Nosotros, Contacto, Login, Registro, Admin, 404
 └── main/java/cl/deepservice/   model · dto · repository · service · controller
@@ -179,6 +180,31 @@ Originales: 6,9 MB con audio. Codificación: sin audio, H.264 CRF 26 / AV1 CRF 3
 
 Para reemplazar un video: mismo encuadre horizontal, **nombre nuevo** (por la
 caché) y actualizar `CLIPS` en el componente.
+
+### Idiomas (español / inglés)
+
+El selector **ES | EN** está en la barra superior (en celulares, dentro del menú).
+La elección se recuerda en el navegador y actualiza `<html lang>`, el título de
+la pestaña y la meta descripción. También se puede enlazar directo con `?lang=en`.
+
+| Pieza | Qué hace |
+|---|---|
+| `src/i18n/IdiomaContext.jsx` | Estado del idioma y `t('texto es', 'text en')` |
+| `src/i18n/datos.js` | `useEmpresa()` y `useCatalogo()` devuelven los datos en el idioma activo |
+| `src/data/empresa.en.js` | Servicios, ETA, clientes, FAQ… en inglés (mismas claves) |
+| `src/data/catalogo.en.js` | Categorías, marcas y fichas en inglés, redactadas desde los folletos originales de Furuno |
+| `src/i18n/errores.js` | Traduce por código de respuesta los errores del backend (que vienen en español) |
+
+Para agregar un texto nuevo en un componente: `const { t } = useIdioma();` y
+`t('Texto en español', 'English text')`. Para un producto nuevo: agregar su bloque
+en `catalogo.js` y su traducción (por slug) en `catalogo.en.js`.
+
+### Dirección y mapa
+
+`CONTACTO` en `src/data/empresa.js`: **Volcán Hornopirén 274, Talcahuano**.
+`mapa.ficha` es el enlace compartido de Google Maps; `mapa.embed` alimenta el
+mapa de la página de contacto (sin clave de API, carga diferida, se sirve desde
+Google y no consume ancho de banda de Render) y `mapa.ruta` abre "Cómo llegar".
 
 ### Cabecera
 
@@ -284,6 +310,5 @@ El sitio incluye **modo claro y oscuro**; el conmutador vive en la cabecera.
       El resto está marcado como *ficha en preparación*, y los productos asignados
       a GARMIN, ICOM, ACR y MARPORT son marcadores de estructura: hay que
       confirmar qué equipos de cada marca se ofrecen realmente.
-- [ ] **Datos de contacto**: confirmar correo corporativo y dirección física en
-      `src/data/empresa.js`.
+- [ ] **Datos de contacto**: confirmar el correo corporativo en `src/data/empresa.js`.
 - [ ] **Credencial del administrador**: cambiar la contraseña inicial.

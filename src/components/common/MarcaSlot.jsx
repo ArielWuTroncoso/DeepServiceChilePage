@@ -9,7 +9,10 @@
  * La casilla es siempre blanca (también en modo oscuro), como una placa de
  * logotipos, para respetar los colores originales de cada marca.
  */
+import { useIdioma } from '../../i18n/IdiomaContext';
+
 export default function MarcaSlot({ marca, alto = 108 }) {
+  const { t } = useIdioma();
   const conTag = Boolean(marca.destacada);
   const area = 0.42 * alto * alto;
   const topeAlto = alto * (conTag ? 0.46 : 0.52);
@@ -31,7 +34,7 @@ export default function MarcaSlot({ marca, alto = 108 }) {
       ) : (
         <span className="brand-slot__word">{marca.nombre}</span>
       )}
-      {conTag && <span className="brand-slot__tag">Servicio técnico oficial</span>}
+      {conTag && <span className="brand-slot__tag">{t('Servicio técnico oficial', 'Official technical service')}</span>}
     </div>
   );
 }

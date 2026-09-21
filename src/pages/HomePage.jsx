@@ -9,8 +9,8 @@ import MarcaSlot from '../components/common/MarcaSlot';
 import HeroVideos from '../components/home/HeroVideos';
 import { useReveal } from '../hooks/useReveal';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { CATEGORIAS, MARCAS, PRODUCTOS } from '../data/catalogo';
-import { CONTACTO, MERCADOS, SERVICIOS } from '../data/empresa';
+import { useIdioma } from '../i18n/IdiomaContext';
+import { useCatalogo, useEmpresa } from '../i18n/datos';
 
 const ICONOS = {
   Fish, Compass, RadioTower, LifeBuoy, Cable,
@@ -27,9 +27,15 @@ const Icono = ({ nombre, ...props }) => {
 };
 
 export default function HomePage() {
+  const { t } = useIdioma();
+  const { CATEGORIAS, MARCAS, PRODUCTOS } = useCatalogo();
+  const { CONTACTO, MERCADOS, SERVICIOS } = useEmpresa();
   useDocumentTitle(
     null,
-    'Deep Service Chile: venta, instalación y soporte técnico de equipos electrónicos marinos para navegación y pesca.',
+    t(
+      'Deep Service Chile: venta, instalación y soporte técnico de equipos electrónicos marinos para navegación y pesca.',
+      'Deep Service Chile: sales, installation and technical support for marine electronic equipment for navigation and fishing.',
+    ),
   );
   const destacado = PRODUCTOS.find((p) => p.destacado && p.completo);
 
@@ -43,28 +49,30 @@ export default function HomePage() {
           <div className="hero__inner">
             <div>
               <div className="hero__kicker">
-                <span className="ds-tag ds-tag--ghost">Electrónica marina</span>
-                <b>Navegación y pesca</b>
+                <span className="ds-tag ds-tag--ghost">{t('Electrónica marina', 'Marine electronics')}</span>
+                <b>{t('Navegación y pesca', 'Navigation and fishing')}</b>
               </div>
               <h1 className="ds-display ds-h1">
-                Precisión bajo <span className="ds-accent">la superficie</span>
+                {t('Precisión bajo', 'Precision beneath')} <span className="ds-accent">{t('la superficie', 'the surface')}</span>
               </h1>
               <p className="hero__lead">
-                Soluciones y <strong>respaldo técnico</strong> en equipos electrónicos marinos.
-                Vendemos, instalamos y mantenemos la tecnología que tu embarcación necesita
-                para operar con seguridad y rendimiento.
+                {t('Soluciones y', 'Solutions and')} <strong>{t('respaldo técnico', 'technical support')}</strong>{' '}
+                {t(
+                  'en equipos electrónicos marinos. Vendemos, instalamos y mantenemos la tecnología que tu embarcación necesita para operar con seguridad y rendimiento.',
+                  'for marine electronic equipment. We sell, install and maintain the technology your vessel needs to operate safely and efficiently.',
+                )}
               </p>
               <div className="hero__cta">
                 <Link to="/productos" className="ds-btn ds-btn--light">
-                  Ver catálogo <ArrowRight size={17} />
+                  {t('Ver catálogo', 'Browse catalog')} <ArrowRight size={17} />
                 </Link>
-                <Link to="/contacto" className="ds-btn ds-btn--onDark">Solicitar cotización</Link>
+                <Link to="/contacto" className="ds-btn ds-btn--onDark">{t('Solicitar cotización', 'Request a quote')}</Link>
               </div>
               <div className="hero__stats">
                 {[
-                  { v: '5', l: 'Marcas representadas' },
-                  { v: '7', l: 'Servicios técnicos' },
-                  { v: 'ETA', l: 'Entidad técnica aprobada' },
+                  { v: String(MARCAS.length), l: t('Marcas representadas', 'Brands represented') },
+                  { v: String(SERVICIOS.length), l: t('Servicios técnicos', 'Technical services') },
+                  { v: t('ETA', 'Approved'), l: t('Entidad técnica aprobada', 'Technical entity') },
                 ].map(({ v, l }) => (
                   <div className="ds-chip" key={l}>
                     <div className="ds-chip__v">{v}</div>
@@ -89,9 +97,12 @@ export default function HomePage() {
       <section className="ds-section">
         <div className="ds-container">
           <SectionHead
-            barra="Catálogo"
-            titulo="Qué equipamos a bordo"
-            descripcion="Cuatro líneas de producto más accesorios, organizadas por el trabajo que resuelven en la embarcación."
+            barra={t('Catálogo', 'Catalog')}
+            titulo={t('Qué equipamos a bordo', 'What we fit on board')}
+            descripcion={t(
+              'Cuatro líneas de producto más accesorios, organizadas por el trabajo que resuelven en la embarcación.',
+              'Four product lines plus accessories, organized by the job they do on board.',
+            )}
           />
           <div className="ds-grid ds-grid--3">
             {CATEGORIAS.map((c, i) => {
@@ -107,7 +118,7 @@ export default function HomePage() {
                   <h3>{c.nombre}</h3>
                   <p>{c.desc}</p>
                   <span className="pillar__more">
-                    Ver {total} {total === 1 ? 'equipo' : 'equipos'} <ArrowRight size={15} />
+                    {t('Ver', 'View')} {total} {total === 1 ? t('equipo', 'item') : t('equipos', 'items')} <ArrowRight size={15} />
                   </span>
                 </Link>
               );
@@ -128,7 +139,7 @@ export default function HomePage() {
                   <img
                     className="spotlight__img"
                     src={destacado.imagen}
-                    alt={`Sonda de pesca Furuno ${destacado.nombre}`}
+                    alt={t(`Sonda de pesca Furuno ${destacado.nombre}`, `Furuno ${destacado.nombre} fish finder`)}
                     width="570"
                     height="568"
                     loading="lazy"
@@ -138,7 +149,7 @@ export default function HomePage() {
               </div>
 
               <div>
-                <span className="ds-tag">Destacado</span>
+                <span className="ds-tag">{t('Destacado', 'Featured')}</span>
                 <h2 className="ds-display ds-h2">
                   {destacado.nombre} <span className="ds-accent">{destacado.subcategoria}</span>
                 </h2>
@@ -157,7 +168,7 @@ export default function HomePage() {
                 </div>
 
                 <Link to={`/productos/${destacado.slug}`} className="ds-btn ds-btn--light">
-                  Ver ficha completa <ArrowRight size={17} />
+                  {t('Ver ficha completa', 'View full specs')} <ArrowRight size={17} />
                 </Link>
 
                 <div className="spotlight__chips">
@@ -178,9 +189,12 @@ export default function HomePage() {
       <section className="ds-section">
         <div className="ds-container">
           <SectionHead
-            barra="Servicio técnico"
-            titulo="No sólo vendemos el equipo"
-            descripcion="Nuestro servicio técnico está capacitado para realizar todo tipo de servicio electrónico, dando soluciones rápidas y eficientes a las necesidades de nuestros clientes."
+            barra={t('Servicio técnico', 'Technical service')}
+            titulo={t('No sólo vendemos el equipo', 'We don’t just sell the equipment')}
+            descripcion={t(
+              'Nuestro servicio técnico está capacitado para realizar todo tipo de servicio electrónico, dando soluciones rápidas y eficientes a las necesidades de nuestros clientes.',
+              'Our technical service team is qualified to carry out all types of electronic service, providing fast and efficient solutions to our customers’ needs.',
+            )}
           />
           <div className="ds-grid ds-grid--3">
             {SERVICIOS.filter((s) => SERVICIOS_PORTADA.includes(s.slug)).map((s) => (
@@ -200,7 +214,7 @@ export default function HomePage() {
           </div>
           <div style={{ marginTop: 32 }}>
             <Link to="/servicios" className="ds-btn ds-btn--outline">
-              Ver los {SERVICIOS.length} servicios <ArrowRight size={17} />
+              {t(`Ver los ${SERVICIOS.length} servicios`, `See all ${SERVICIOS.length} services`)} <ArrowRight size={17} />
             </Link>
           </div>
         </div>
@@ -210,9 +224,12 @@ export default function HomePage() {
       <section className="ds-section" style={{ background: 'var(--paper-2)' }}>
         <div className="ds-container">
           <SectionHead
-            barra="Mercados"
-            titulo="A quién atendemos"
-            descripcion="Cada operación tiene exigencias distintas. La configuración del equipamiento cambia según el tipo de faena."
+            barra={t('Mercados', 'Markets')}
+            titulo={t('A quién atendemos', 'Who we serve')}
+            descripcion={t(
+              'Cada operación tiene exigencias distintas. La configuración del equipamiento cambia según el tipo de faena.',
+              'Every operation has different demands. The equipment setup changes with the type of work.',
+            )}
           />
           <div className="ds-grid ds-grid--3">
             {MERCADOS.map((m) => (
@@ -230,16 +247,19 @@ export default function HomePage() {
       <section className="ds-section">
         <div className="ds-container">
           <SectionHead
-            barra="Representaciones"
-            titulo="Marcas que trabajamos"
-            descripcion="Equipamiento de fabricantes con respaldo de fábrica y servicio técnico propio en Chile."
+            barra={t('Representaciones', 'Brands')}
+            titulo={t('Marcas que trabajamos', 'Brands we work with')}
+            descripcion={t(
+              'Equipamiento de fabricantes con respaldo de fábrica y servicio técnico propio en Chile.',
+              'Equipment from manufacturers with factory backing and our own technical service in Chile.',
+            )}
           />
           <div className="ds-grid ds-grid--4">
             {MARCAS.map((m) => <MarcaSlot marca={m} key={m.slug} alto={124} />)}
           </div>
           <div style={{ marginTop: 32 }}>
             <Link to="/marcas" className="ds-btn ds-btn--outline">
-              Ver todas las marcas <ArrowRight size={17} />
+              {t('Ver todas las marcas', 'See all brands')} <ArrowRight size={17} />
             </Link>
           </div>
         </div>
@@ -251,8 +271,8 @@ export default function HomePage() {
         <div className="ds-container">
           <div className="closer__inner">
             <div>
-              <h2 className="ds-display ds-h2">Consulta por tu equipo</h2>
-              <p>Asesoría técnica, cotización e instalación a bordo.</p>
+              <h2 className="ds-display ds-h2">{t('Consulta por tu equipo', 'Ask about your equipment')}</h2>
+              <p>{t('Asesoría técnica, cotización e instalación a bordo.', 'Technical advice, quotes and on-board installation.')}</p>
             </div>
             <div className="closer__contacts">
               {CONTACTO.ejecutivos.map((e) => (

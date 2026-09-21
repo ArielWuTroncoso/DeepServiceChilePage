@@ -4,9 +4,12 @@ import AuthVisual from '../components/layout/AuthVisual';
 import FieldError from '../components/common/FieldError';
 import { useAuth } from '../context/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useIdioma } from '../i18n/IdiomaContext';
+import { mensajeError } from '../i18n/errores';
 
 export default function LoginPage() {
-  useDocumentTitle('Iniciar sesión');
+  const { t, idioma } = useIdioma();
+  useDocumentTitle(t('Iniciar sesión', 'Sign in'));
   const { iniciarSesion, autenticado } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,8 +31,8 @@ export default function LoginPage() {
     ev.preventDefault();
     setError('');
     const e = {};
-    if (!datos.correo.trim()) e.correo = 'Ingresa tu correo.';
-    if (!datos.contrasena) e.contrasena = 'Ingresa tu contraseña.';
+    if (!datos.correo.trim()) e.correo = t('Ingresa tu correo.', 'Enter your email.');
+    if (!datos.contrasena) e.contrasena = t('Ingresa tu contraseña.', 'Enter your password.');
     setErrores(e);
     if (Object.keys(e).length) return;
 
@@ -38,7 +41,7 @@ export default function LoginPage() {
       await iniciarSesion(datos.correo.trim(), datos.contrasena);
       navigate(location.state?.desde ?? '/', { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(mensajeError(err, idioma));
     } finally {
       setEnviando(false);
     }
@@ -47,44 +50,47 @@ export default function LoginPage() {
   return (
     <div className="auth">
       <AuthVisual
-        titulo="Área de clientes"
-        texto="Accede al seguimiento de tus cotizaciones, el historial de equipos instalados y las solicitudes de servicio técnico."
+        titulo={t('Área de clientes', 'Customer area')}
+        texto={t(
+          'Accede al seguimiento de tus cotizaciones, el historial de equipos instalados y las solicitudes de servicio técnico.',
+          'Track your quotes, your installed equipment history and your technical service requests.',
+        )}
         puntos={[
-          'Historial de equipos y mantenciones',
-          'Seguimiento de cotizaciones',
-          'Solicitudes de servicio técnico',
+          t('Historial de equipos y mantenciones', 'Equipment and maintenance history'),
+          t('Seguimiento de cotizaciones', 'Quote tracking'),
+          t('Solicitudes de servicio técnico', 'Technical service requests'),
         ]}
       />
 
       <div className="auth__panel">
         <div className="auth__form">
-          <h1 className="ds-display">Iniciar sesión</h1>
-          <p>Ingresa con las credenciales que te entregamos.</p>
+          <h1 className="ds-display">{t('Iniciar sesión', 'Sign in')}</h1>
+          <p>{t('Ingresa con las credenciales que te entregamos.', 'Sign in with the credentials we provided.')}</p>
 
           {error && <div className="ds-alert ds-alert--err" role="alert">{error}</div>}
 
           <form onSubmit={enviar} noValidate>
             <div className={`field${errores.correo ? ' field--err' : ''}`}>
-              <label htmlFor="correo">Correo</label>
+              <label htmlFor="correo">{t('Correo', 'Email')}</label>
               <input id="correo" name="correo" type="email" value={datos.correo}
                 onChange={cambiar} autoComplete="email" aria-describedby="err-correo" />
               <FieldError mensaje={errores.correo} id="err-correo" />
             </div>
 
             <div className={`field${errores.contrasena ? ' field--err' : ''}`}>
-              <label htmlFor="contrasena">Contraseña</label>
+              <label htmlFor="contrasena">{t('Contraseña', 'Password')}</label>
               <input id="contrasena" name="contrasena" type="password" value={datos.contrasena}
                 onChange={cambiar} autoComplete="current-password" aria-describedby="err-pass" />
               <FieldError mensaje={errores.contrasena} id="err-pass" />
             </div>
 
             <button type="submit" className="ds-btn ds-btn--primary auth__submit" disabled={enviando}>
-              {enviando ? 'Ingresando…' : 'Ingresar'}
+              {enviando ? t('Ingresando…', 'Signing in…') : t('Ingresar', 'Sign in')}
             </button>
           </form>
 
           <p className="auth__alt">
-            ¿No tienes cuenta? <Link to="/registro">Solicita acceso</Link>
+            {t('¿No tienes cuenta?', 'Don’t have an account?')} <Link to="/registro">{t('Solicita acceso', 'Request access')}</Link>
           </p>
         </div>
       </div>

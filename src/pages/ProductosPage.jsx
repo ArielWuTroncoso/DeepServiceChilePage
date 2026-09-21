@@ -6,12 +6,19 @@ import EmptyState from '../components/common/EmptyState';
 import FiltrosCatalogo from '../features/catalogo/FiltrosCatalogo';
 import ProductoCard from '../features/catalogo/ProductoCard';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { CATEGORIAS, MARCAS, PRODUCTOS, nombreCategoria, nombreMarca } from '../data/catalogo';
+import { useIdioma } from '../i18n/IdiomaContext';
+import { useCatalogo } from '../i18n/datos';
 
 const listaDesde = (valor) => (valor ? valor.split(',').filter(Boolean) : []);
 
 export default function ProductosPage() {
-  useDocumentTitle('Productos', 'Catálogo de equipos electrónicos marinos: pesca, navegación, comunicaciones, seguridad y accesorios.');
+  const { t, idioma } = useIdioma();
+  const { CATEGORIAS, MARCAS, PRODUCTOS, nombreCategoria, nombreMarca } = useCatalogo();
+  useDocumentTitle(
+    t('Productos', 'Products'),
+    t('Catálogo de equipos electrónicos marinos: pesca, navegación, comunicaciones, seguridad y accesorios.',
+      'Catalog of marine electronic equipment: fishing, navigation, communications, safety and accessories.'),
+  );
 
   const [params, setParams] = useSearchParams();
   const categorias = listaDesde(params.get('categoria'));
@@ -51,7 +58,7 @@ export default function ProductosPage() {
     CATEGORIAS.forEach((c) => { porCategoria[c.slug] = PRODUCTOS.filter((p) => p.categoria === c.slug).length; });
     MARCAS.forEach((m) => { porMarca[m.slug] = PRODUCTOS.filter((p) => p.marca === m.slug).length; });
     return { categoria: porCategoria, marca: porMarca };
-  }, []);
+  }, [CATEGORIAS, MARCAS, PRODUCTOS]);
 
   const resultados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -65,11 +72,11 @@ export default function ProductosPage() {
       return true;
     });
 
-    if (orden === 'nombre') lista = [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    if (orden === 'nombre') lista = [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, idioma));
     if (orden === 'completos') lista = [...lista].sort((a, b) => Number(b.completo) - Number(a.completo));
     if (orden === 'destacados') lista = [...lista].sort((a, b) => Number(b.destacado) - Number(a.destacado));
     return lista;
-  }, [categorias, marcas, busqueda, orden]);
+  }, [categorias, marcas, busqueda, orden, PRODUCTOS, nombreMarca, idioma]);
 
   const activos = [
     ...categorias.map((c) => ({ tipo: 'categoria', valor: c, label: nombreCategoria(c) })),
@@ -79,10 +86,13 @@ export default function ProductosPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Catálogo"
-        titulo="Productos"
-        descripcion="Equipos electrónicos marinos para pesca, navegación, comunicaciones y seguridad. Filtra por línea de producto o por marca."
-        migas={[{ label: 'Productos' }]}
+        eyebrow={t('Catálogo', 'Catalog')}
+        titulo={t('Productos', 'Products')}
+        descripcion={t(
+          'Equipos electrónicos marinos para pesca, navegación, comunicaciones y seguridad. Filtra por línea de producto o por marca.',
+          'Marine electronic equipment for fishing, navigation, communications and safety. Filter by product line or by brand.',
+        )}
+        migas={[{ label: t('Productos', 'Products') }]}
       />
 
       <section className="ds-section">
@@ -104,26 +114,26 @@ export default function ProductosPage() {
                     type="search"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
-                    placeholder="Buscar por modelo, tipo de equipo o marca…"
-                    aria-label="Buscar en el catálogo"
+                    placeholder={t('Buscar por modelo, tipo de equipo o marca…', 'Search by model, equipment type or brand…')}
+                    aria-label={t('Buscar en el catálogo', 'Search the catalog')}
                   />
                 </div>
                 <select
                   className="cat__sort"
                   value={orden}
                   onChange={(e) => setOrden(e.target.value)}
-                  aria-label="Ordenar resultados"
+                  aria-label={t('Ordenar resultados', 'Sort results')}
                 >
-                  <option value="destacados">Destacados primero</option>
-                  <option value="completos">Fichas completas primero</option>
-                  <option value="nombre">Nombre (A-Z)</option>
+                  <option value="destacados">{t('Destacados primero', 'Featured first')}</option>
+                  <option value="completos">{t('Fichas completas primero', 'Full specs first')}</option>
+                  <option value="nombre">{t('Nombre (A-Z)', 'Name (A–Z)')}</option>
                 </select>
               </div>
 
               <div className="cat__meta">
                 <span>
-                  <strong>{resultados.length}</strong> {resultados.length === 1 ? 'equipo' : 'equipos'}
-                  {activos.length > 0 && ' con los filtros aplicados'}
+                  <strong>{resultados.length}</strong> {resultados.length === 1 ? t('equipo', 'item') : t('equipos', 'items')}
+                  {activos.length > 0 && t(' con los filtros aplicados', ' with the selected filters')}
                 </span>
                 {activos.length > 0 && (
                   <div className="cat__active">
@@ -135,7 +145,7 @@ export default function ProductosPage() {
                         onClick={() => alternar(a.tipo, a.valor)}
                       >
                         {a.label} <X size={13} aria-hidden="true" />
-                        <span className="ds-sr-only">Quitar filtro</span>
+                        <span className="ds-sr-only">{t('Quitar filtro', 'Remove filter')}</span>
                       </button>
                     ))}
                   </div>
@@ -144,11 +154,14 @@ export default function ProductosPage() {
 
               {resultados.length === 0 ? (
                 <EmptyState
-                  titulo="Sin resultados"
-                  mensaje="No encontramos equipos con esos criterios. Prueba con otros filtros o escríbenos: podemos conseguir el equipo que necesitas."
+                  titulo={t('Sin resultados', 'No results')}
+                  mensaje={t(
+                    'No encontramos equipos con esos criterios. Prueba con otros filtros o escríbenos: podemos conseguir el equipo que necesitas.',
+                    'We found no equipment matching those criteria. Try other filters or write to us: we can source the equipment you need.',
+                  )}
                 >
                   <button type="button" className="ds-btn ds-btn--outline ds-btn--sm" onClick={limpiar}>
-                    Limpiar filtros
+                    {t('Limpiar filtros', 'Clear filters')}
                   </button>
                 </EmptyState>
               ) : (

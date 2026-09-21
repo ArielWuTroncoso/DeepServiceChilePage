@@ -5,6 +5,7 @@ import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import CardSkeleton from './components/skeletons/CardSkeleton';
 import { AuthProvider } from './context/AuthContext';
+import { useIdioma } from './i18n/IdiomaContext';
 
 const HomePage      = lazy(() => import('./pages/HomePage'));
 const ProductosPage = lazy(() => import('./pages/ProductosPage'));
@@ -26,14 +27,15 @@ function ScrollAlTope() {
 }
 
 export default function App() {
+  const { t } = useIdioma();
   return (
     <AuthProvider>
-      <a className="ds-skip" href="#contenido">Saltar al contenido</a>
+      <a className="ds-skip" href="#contenido">{t('Saltar al contenido', 'Skip to content')}</a>
       <ScrollAlTope />
       <Header />
 
       <main className="main-content" id="contenido">
-        <Suspense fallback={<CardSkeleton count={3} />}>
+        <Suspense fallback={<CardSkeleton count={3} label={t('Cargando contenido', 'Loading content')} />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/productos" element={<ProductosPage />} />

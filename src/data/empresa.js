@@ -15,8 +15,17 @@ export const CONTACTO = {
   ],
   // TODO: confirmar el correo corporativo definitivo.
   correo: 'contacto@deepservicechile.cl',
-  ciudad: 'Región del Biobío, Chile',
-  direccion: 'Por confirmar',
+  direccion: 'Volcán Hornopirén 274',
+  comuna: 'Talcahuano',
+  ciudad: 'Talcahuano, Región del Biobío',
+  pais: 'Chile',
+  mapa: {
+    // Enlace compartido desde Google Maps (abre la ficha exacta del lugar).
+    ficha: 'https://share.google/x5EUfMmnLHdJ5AW6n',
+    // Mapa embebido y ruta: no requieren clave de API ni consumen ancho de banda de Render.
+    embed: 'https://www.google.com/maps?q=Volc%C3%A1n+Hornopir%C3%A9n+274,+Talcahuano,+B%C3%ADo+B%C3%ADo,+Chile&z=16&output=embed',
+    ruta: 'https://www.google.com/maps/dir/?api=1&destination=Volc%C3%A1n+Hornopir%C3%A9n+274%2C+Talcahuano%2C+Chile',
+  },
   horario: 'Lunes a viernes, 9:00 a 18:00 h',
   instagram: { usuario: '@deep_service_chile', url: 'https://www.instagram.com/deep_service_chile/' },
 };

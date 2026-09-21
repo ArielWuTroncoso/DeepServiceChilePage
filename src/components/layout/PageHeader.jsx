@@ -1,15 +1,17 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useIdioma } from '../../i18n/IdiomaContext';
 
 export default function PageHeader({ eyebrow, titulo, descripcion, migas = [] }) {
+  const { t } = useIdioma();
   return (
     <section className="pagehead ds-dark">
       <span className="ds-grid-tex" aria-hidden="true" />
       <div className="ds-container">
         <div className="pagehead__inner">
           {migas.length > 0 && (
-            <nav className="pagehead__crumbs" aria-label="Ruta de navegación">
-              <Link to="/">Inicio</Link>
+            <nav className="pagehead__crumbs" aria-label={t('Ruta de navegación', 'Breadcrumb')}>
+              <Link to="/">{t('Inicio', 'Home')}</Link>
               {migas.map((m) => (
                 <span key={m.label} style={{ display: 'contents' }}>
                   <ChevronRight size={14} aria-hidden="true" />

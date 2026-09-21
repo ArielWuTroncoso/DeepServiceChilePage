@@ -32,11 +32,36 @@
   .hdr__mark { height: 64px; }
   .hdr__actions { gap: 6px; }
 }
+/* Selector de idioma: en la barra desde 431 px; en pantallas más estrechas
+   pasa al menú desplegable. (Doble clase para ganarle a .hdr__lang.) */
+@media (max-width: 430px) {
+  .hdr__lang.hdr__lang--bar { display: none; }
+}
+@media (min-width: 431px) {
+  .hdr__lang.hdr__lang--menu { display: none; }
+}
 @media (max-width: 360px) {
   .hdr__name { font-size: 1.06rem; }
   .hdr__mark { height: 54px; }
   .hdr__icon-btn { width: 36px; height: 36px; }
 }
+
+/* Selector de idioma ES | EN */
+.hdr__lang {
+  display: inline-flex; align-items: center; flex: 0 0 auto;
+  padding: 3px; border: 1px solid var(--line-dark); border-radius: 10px;
+}
+.hdr__lang button {
+  min-width: 32px; height: 32px; padding: 0 7px; border: 0; border-radius: 7px;
+  background: transparent; color: var(--on-dark-soft); cursor: pointer;
+  font: inherit; font-size: .74rem; font-weight: 800; letter-spacing: .08em;
+  transition: background-color .18s ease, color .18s ease;
+}
+.hdr__lang button:hover { color: #fff; }
+.hdr__lang button.is-on { background: var(--b-600); color: #fff; }
+.hdr__lang button:focus-visible { outline: 2px solid var(--b-300); outline-offset: 1px; }
+.hdr__lang--menu { align-self: flex-start; margin-bottom: 8px; }
+.hdr__lang--menu button { min-width: 44px; height: 36px; font-size: .8rem; }
 
 .hdr__nav { display: flex; align-items: center; gap: 4px; }
 .hdr__link {
@@ -70,14 +95,15 @@
 .hdr__mobile .hdr__link { padding: 13px 14px; font-size: 1rem; }
 .hdr__mobile-cta { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 
-@media (max-width: 1360px) and (min-width: 1161px) {
+@media (max-width: 1360px) and (min-width: 1241px) {
   .hdr__bar { gap: 14px; }
   .hdr__mark { height: 68px; }
   .hdr__name { font-size: 1.36rem; }
   .hdr__link { padding: 10px 10px; }
 }
-/* Con el logo grande, el menú completo cabe desde 1.161 px; bajo eso, menú hamburguesa. */
-@media (max-width: 1160px) {
+/* Con el logo grande y el selector de idioma, el menú completo cabe desde
+   1.241 px (también en inglés); bajo eso, menú hamburguesa. */
+@media (max-width: 1240px) {
   .hdr__nav, .hdr__actions .ds-btn { display: none; }
   .hdr__burger { display: grid; }
 }

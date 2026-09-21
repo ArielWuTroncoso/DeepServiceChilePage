@@ -6,15 +6,19 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { listarProductos } from '../services/catalogoService';
 import { listarSolicitudes, marcarAtendida } from '../services/contactoService';
-import { nombreCategoria, nombreMarca } from '../data/catalogo';
+import { useIdioma } from '../i18n/IdiomaContext';
+import { useCatalogo } from '../i18n/datos';
+import { mensajeError } from '../i18n/errores';
 
 const PESTANAS = [
-  { id: 'solicitudes', label: 'Solicitudes de contacto', icono: Inbox },
-  { id: 'productos', label: 'Catálogo', icono: Package },
+  { id: 'solicitudes', label: { es: 'Solicitudes de contacto', en: 'Contact requests' }, icono: Inbox },
+  { id: 'productos', label: { es: 'Catálogo', en: 'Catalog' }, icono: Package },
 ];
 
 export default function AdminPage() {
-  useDocumentTitle('Panel de administración');
+  const { t, idioma } = useIdioma();
+  const { nombreCategoria, nombreMarca } = useCatalogo();
+  useDocumentTitle(t('Panel de administración', 'Admin panel'));
   const [pestana, setPestana] = useState('solicitudes');
   const [solicitudes, setSolicitudes] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -31,7 +35,7 @@ export default function AdminPage() {
       setSolicitudes(Array.isArray(s) ? s : []);
       setProductos(Array.isArray(p) ? p : []);
     } catch (err) {
-      setError(err.message);
+      setError(mensajeError(err, idioma));
     } finally {
       setCargando(false);
     }
@@ -44,17 +48,17 @@ export default function AdminPage() {
       await marcarAtendida(id);
       setSolicitudes((lista) => lista.map((s) => (s.id === id ? { ...s, atendida: true } : s)));
     } catch (err) {
-      setError(err.message);
+      setError(mensajeError(err, idioma));
     }
   };
 
   return (
     <>
       <PageHeader
-        eyebrow="Interno"
-        titulo="Panel de administración"
-        descripcion="Solicitudes recibidas desde el sitio y estado del catálogo publicado."
-        migas={[{ label: 'Panel' }]}
+        eyebrow={t('Interno', 'Internal')}
+        titulo={t('Panel de administración', 'Admin panel')}
+        descripcion={t('Solicitudes recibidas desde el sitio y estado del catálogo publicado.', 'Requests received through the website and status of the published catalog.')}
+        migas={[{ label: t('Panel', 'Admin') }]}
       />
 
       <section className="ds-section">
@@ -70,34 +74,34 @@ export default function AdminPage() {
                 onClick={() => setPestana(id)}
               >
                 <Icono size={16} style={{ display: 'inline', marginRight: 8, verticalAlign: '-3px' }} />
-                {label}
+                {label[idioma]}
               </button>
             ))}
             <button type="button" className="admin__tab" onClick={cargar} style={{ marginLeft: 'auto' }}>
               <RefreshCw size={16} style={{ display: 'inline', marginRight: 8, verticalAlign: '-3px' }} />
-              Actualizar
+              {t('Actualizar', 'Refresh')}
             </button>
           </div>
 
           {error && <div className="ds-alert ds-alert--err" role="alert">{error}</div>}
-          {cargando && <LoadingScreen mensaje="Cargando datos" />}
+          {cargando && <LoadingScreen mensaje={t('Cargando datos', 'Loading data')} />}
 
           {!cargando && pestana === 'solicitudes' && (
             solicitudes.length === 0
-              ? <EmptyState icono={Inbox} titulo="Sin solicitudes" mensaje="Las consultas enviadas desde el formulario de contacto aparecerán aquí." />
+              ? <EmptyState icono={Inbox} titulo={t('Sin solicitudes', 'No requests')} mensaje={t('Las consultas enviadas desde el formulario de contacto aparecerán aquí.', 'Inquiries sent through the contact form will appear here.')} />
               : (
                 <div style={{ overflowX: 'auto' }}>
                   <table className="admin__table">
                     <thead>
                       <tr>
-                        <th>Fecha</th><th>Nombre</th><th>Contacto</th>
-                        <th>Interés</th><th>Estado</th><th />
+                        <th>{t('Fecha', 'Date')}</th><th>{t('Nombre', 'Name')}</th><th>{t('Contacto', 'Contact')}</th>
+                        <th>{t('Interés', 'Interest')}</th><th>{t('Estado', 'Status')}</th><th />
                       </tr>
                     </thead>
                     <tbody>
                       {solicitudes.map((s) => (
                         <tr key={s.id}>
-                          <td>{s.fechaCreacion ? new Date(s.fechaCreacion).toLocaleDateString('es-CL') : '—'}</td>
+                          <td>{s.fechaCreacion ? new Date(s.fechaCreacion).toLocaleDateString(idioma === 'en' ? 'en-US' : 'es-CL') : '—'}</td>
                           <td>
                             <strong>{s.nombre}</strong>
                             {s.empresa && <><br /><span style={{ color: 'var(--ink-faint)', fontSize: '.85rem' }}>{s.empresa}</span></>}
@@ -109,13 +113,13 @@ export default function AdminPage() {
                           <td>{s.interes || '—'}</td>
                           <td>
                             <span className={`admin__state admin__state--${s.atendida ? 'on' : 'off'}`}>
-                              {s.atendida ? 'Atendida' : 'Pendiente'}
+                              {s.atendida ? t('Atendida', 'Handled') : t('Pendiente', 'Pending')}
                             </span>
                           </td>
                           <td>
                             {!s.atendida && (
                               <button type="button" className="ds-btn ds-btn--outline ds-btn--sm" onClick={() => atender(s.id)}>
-                                Marcar atendida
+                                {t('Marcar atendida', 'Mark as handled')}
                               </button>
                             )}
                           </td>
@@ -129,12 +133,12 @@ export default function AdminPage() {
 
           {!cargando && pestana === 'productos' && (
             productos.length === 0
-              ? <EmptyState icono={Package} titulo="Catálogo vacío en la API" mensaje="El backend todavía no devuelve productos. El sitio público muestra la estructura local mientras tanto." />
+              ? <EmptyState icono={Package} titulo={t('Catálogo vacío en la API', 'Catalog empty in the API')} mensaje={t('El backend todavía no devuelve productos. El sitio público muestra la estructura local mientras tanto.', 'The backend is not returning products yet. The public site shows the local data in the meantime.')} />
               : (
                 <div style={{ overflowX: 'auto' }}>
                   <table className="admin__table">
                     <thead>
-                      <tr><th>Modelo</th><th>Marca</th><th>Categoría</th><th>Ficha</th></tr>
+                      <tr><th>{t('Modelo', 'Model')}</th><th>{t('Marca', 'Brand')}</th><th>{t('Categoría', 'Category')}</th><th>{t('Ficha', 'Specs')}</th></tr>
                     </thead>
                     <tbody>
                       {productos.map((p) => (
@@ -144,7 +148,7 @@ export default function AdminPage() {
                           <td>{nombreCategoria(p.categoria)}</td>
                           <td>
                             <span className={`admin__state admin__state--${p.completo ? 'on' : 'off'}`}>
-                              {p.completo ? 'Completa' : 'En preparación'}
+                              {p.completo ? t('Completa', 'Complete') : t('En preparación', 'In preparation')}
                             </span>
                           </td>
                         </tr>

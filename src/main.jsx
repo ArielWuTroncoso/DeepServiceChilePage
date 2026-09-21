@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
+import { IdiomaProvider } from './i18n/IdiomaContext';
 
 /* Tipografías autoalojadas: el sistema de diseño declara Inter y Barlow
    Condensed, así que se empaquetan con el sitio en vez de pedirlas a un
@@ -21,9 +22,11 @@ import './styles/forms.css';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <IdiomaProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </IdiomaProvider>
     </ThemeProvider>
   </StrictMode>,
 );

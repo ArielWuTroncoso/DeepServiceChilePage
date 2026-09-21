@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pause, Play } from 'lucide-react';
+import { useIdioma } from '../../i18n/IdiomaContext';
 
 /**
  * Carrusel de videos de portada: se ve un video; al terminar, el marco se
@@ -23,14 +24,20 @@ const CLIPS = [
   {
     id: 'sonar',
     base: '/video/portada-sonar',
-    etiqueta: 'Sonar',
-    descripcion: 'Sonar Furuno en operación a bordo y vista desde el puente de mando.',
+    etiqueta: { es: 'Sonar', en: 'Sonar' },
+    descripcion: {
+      es: 'Sonar Furuno en operación a bordo y vista desde el puente de mando.',
+      en: 'Furuno sonar operating on board, and the view from the bridge.',
+    },
   },
   {
     id: 'gps',
     base: '/video/portada-gps',
-    etiqueta: 'Plóter GPS',
-    descripcion: 'Plóter GPS Garmin en operación y vista de la flota pesquera en la bahía.',
+    etiqueta: { es: 'Plóter GPS', en: 'GPS plotter' },
+    descripcion: {
+      es: 'Plóter GPS Garmin en operación y vista de la flota pesquera en la bahía.',
+      en: 'Garmin GPS plotter in operation, and the fishing fleet in the bay.',
+    },
   },
 ];
 
@@ -64,6 +71,7 @@ function cargar(v) {
 }
 
 export default function HeroVideos() {
+  const { idioma, t } = useIdioma();
   const marco = useRef(null);
   const videos = useRef([]);
   const [actual, setActual] = useState(0);
@@ -182,7 +190,7 @@ export default function HeroVideos() {
 
   return (
     <div className="hero-car">
-      <div className="hero-car__frame" ref={marco} aria-roledescription="carrusel" aria-label="Videos a bordo">
+      <div className="hero-car__frame" ref={marco} aria-roledescription={t('carrusel', 'carousel')} aria-label={t('Videos a bordo', 'On-board videos')}>
         {CLIPS.map((c, i) => (
           <figure
             className={`hero-car__slide ${estadoSlide(i)}`}
@@ -196,14 +204,14 @@ export default function HeroVideos() {
               playsInline
               preload="none"
               disablePictureInPicture
-              aria-label={c.descripcion}
+              aria-label={c.descripcion[idioma]}
               onTimeUpdate={alAvanzarTiempo(i)}
               onEnded={alTerminar(i)}
             >
               <source src={`${c.base}.webm`} type={TIPO_AV1} />
               <source src={`${c.base}.mp4`} type={TIPO_H264} />
             </video>
-            <figcaption className="hero-car__tag">{c.etiqueta}</figcaption>
+            <figcaption className="hero-car__tag">{c.etiqueta[idioma]}</figcaption>
           </figure>
         ))}
       </div>
@@ -215,11 +223,11 @@ export default function HeroVideos() {
           onClick={alternarPausa}
           disabled={!activo}
           aria-pressed={enPausa}
-          aria-label={enPausa ? 'Reproducir videos' : 'Pausar videos'}
+          aria-label={enPausa ? t('Reproducir videos', 'Play videos') : t('Pausar videos', 'Pause videos')}
         >
           {enPausa || !activo ? <Play size={15} /> : <Pause size={15} />}
         </button>
-        <div className="hero-car__dots" role="tablist" aria-label="Elegir video">
+        <div className="hero-car__dots" role="tablist" aria-label={t('Elegir video', 'Choose video')}>
           {CLIPS.map((c, i) => (
             <button
               type="button"
@@ -229,7 +237,7 @@ export default function HeroVideos() {
               aria-selected={i === actual}
               onClick={() => { if (!activo) return; irA(i); }}
             >
-              <span>{c.etiqueta}</span>
+              <span>{c.etiqueta[idioma]}</span>
               <i aria-hidden="true">
                 <b style={{ transform: `scaleX(${i === actual ? progreso : 0})` }} />
               </i>

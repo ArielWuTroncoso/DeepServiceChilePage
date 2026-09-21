@@ -1,12 +1,15 @@
-import { CATEGORIAS, MARCAS } from '../../data/catalogo';
+import { useIdioma } from '../../i18n/IdiomaContext';
+import { useCatalogo } from '../../i18n/datos';
 
 export default function FiltrosCatalogo({ categorias, marcas, onToggle, onReset, conteos }) {
+  const { t } = useIdioma();
+  const { CATEGORIAS, MARCAS } = useCatalogo();
   const hayFiltros = categorias.length > 0 || marcas.length > 0;
 
   return (
-    <aside className="ds-card filters" aria-label="Filtros del catálogo">
+    <aside className="ds-card filters" aria-label={t('Filtros del catálogo', 'Catalog filters')}>
       <div className="filters__group">
-        <h4>Categoría</h4>
+        <h4>{t('Categoría', 'Category')}</h4>
         {CATEGORIAS.map((c) => (
           <label className="filters__opt" key={c.slug}>
             <input
@@ -21,7 +24,7 @@ export default function FiltrosCatalogo({ categorias, marcas, onToggle, onReset,
       </div>
 
       <div className="filters__group">
-        <h4>Marca</h4>
+        <h4>{t('Marca', 'Brand')}</h4>
         {MARCAS.map((m) => (
           <label className="filters__opt" key={m.slug}>
             <input
@@ -37,7 +40,7 @@ export default function FiltrosCatalogo({ categorias, marcas, onToggle, onReset,
 
       {hayFiltros && (
         <button type="button" className="ds-btn ds-btn--outline ds-btn--sm filters__reset" onClick={onReset}>
-          Limpiar filtros
+          {t('Limpiar filtros', 'Clear filters')}
         </button>
       )}
     </aside>

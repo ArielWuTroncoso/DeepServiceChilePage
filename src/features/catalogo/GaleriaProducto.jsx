@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ImageOff } from 'lucide-react';
+import { useIdioma } from '../../i18n/IdiomaContext';
 
 /**
  * Galería de la ficha: imagen principal + miniaturas.
@@ -8,15 +9,16 @@ import { ImageOff } from 'lucide-react';
  * para fotos de producto recortadas sin fondo.
  */
 export default function GaleriaProducto({ imagenes = [], nombre }) {
+  const { t } = useIdioma();
   const [activa, setActiva] = useState(0);
 
   if (!imagenes.length) {
     return (
       <div className="pdp__slot">
         <ImageOff size={40} strokeWidth={1.4} aria-hidden="true" />
-        <b style={{ fontSize: '.82rem', letterSpacing: '.13em', textTransform: 'uppercase' }}>Imagen pendiente</b>
+        <b style={{ fontSize: '.82rem', letterSpacing: '.13em', textTransform: 'uppercase' }}>{t('Imagen pendiente', 'Image coming soon')}</b>
         <span style={{ fontSize: '.85rem', maxWidth: '30ch', lineHeight: 1.5 }}>
-          Pronto agregaremos la fotografía oficial del equipo.
+          {t('Pronto agregaremos la fotografía oficial del equipo.', 'The official product photo will be added soon.')}
         </span>
       </div>
     );
@@ -37,7 +39,7 @@ export default function GaleriaProducto({ imagenes = [], nombre }) {
       </figure>
 
       {imagenes.length > 1 && (
-        <div className="pdp__thumbs" role="tablist" aria-label={`Imágenes de ${nombre}`}>
+        <div className="pdp__thumbs" role="tablist" aria-label={t(`Imágenes de ${nombre}`, `${nombre} images`)}>
           {imagenes.map((img, i) => (
             <button
               type="button"
@@ -45,7 +47,7 @@ export default function GaleriaProducto({ imagenes = [], nombre }) {
               key={img.src}
               className={`pdp__thumb${i === activa ? ' is-on' : ''}${img.ajuste === 'cubrir' ? ' is-cubrir' : ''}`}
               aria-selected={i === activa}
-              aria-label={img.alt || `Imagen ${i + 1}`}
+              aria-label={img.alt || t(`Imagen ${i + 1}`, `Image ${i + 1}`)}
               onClick={() => setActiva(i)}
             >
               <img src={img.src} alt="" loading="lazy" decoding="async" />

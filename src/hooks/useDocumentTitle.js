@@ -1,10 +1,14 @@
 import { useEffect } from 'react';
+import { useIdioma } from '../i18n/IdiomaContext';
 
 const BASE = 'Deep Service Chile';
 
+/** Título de pestaña y meta descripción; se actualizan al cambiar de idioma. */
 export function useDocumentTitle(titulo, descripcion) {
+  const { t } = useIdioma();
+  const lema = t('Electrónica marina', 'Marine electronics');
   useEffect(() => {
-    document.title = titulo ? `${titulo} · ${BASE}` : `${BASE} · Electrónica marina`;
+    document.title = titulo ? `${titulo} · ${BASE}` : `${BASE} · ${lema}`;
     if (descripcion) {
       let meta = document.querySelector('meta[name="description"]');
       if (!meta) {
@@ -14,5 +18,5 @@ export function useDocumentTitle(titulo, descripcion) {
       }
       meta.setAttribute('content', descripcion);
     }
-  }, [titulo, descripcion]);
+  }, [titulo, descripcion, lema]);
 }

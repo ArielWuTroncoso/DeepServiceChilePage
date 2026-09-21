@@ -34,8 +34,14 @@
 .contact__item b { display: block; font-size: .78rem; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
 .contact__item span, .contact__item a { font-size: .96rem; font-weight: 600; }
 .contact__item a:hover { color: var(--b-600); }
-.contact__map { aspect-ratio: 4/3; border-radius: var(--radius); border: 2px dashed var(--line); background: var(--paper-2); display: grid; place-items: center; align-content: center; gap: 10px; color: var(--ink-faint); text-align: center; padding: 22px; }
+.contact__map {
+  aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--line); background: var(--paper-2);
+}
+.contact__map iframe { display: block; width: 100%; height: 100%; border: 0; }
 [data-theme="dark"] .contact__map { background: var(--b-850); }
+.contact__map-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.contact__map-actions .ds-btn { flex: 1 1 auto; justify-content: center; }
 
 /* ===== Autenticación ===== */
 .auth { min-height: calc(100vh - var(--header-h)); display: grid; grid-template-columns: 1fr 1fr; }
