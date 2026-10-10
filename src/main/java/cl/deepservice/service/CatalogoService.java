@@ -46,7 +46,10 @@ public class CatalogoService {
 
     @Transactional(readOnly = true)
     public List<ProductoResumen> listarProductos(String categoria, String marca, String q) {
-        return productos.buscar(limpiar(categoria), limpiar(marca), limpiar(q)).stream()
+        String cat = StringUtils.hasText(categoria) ? categoria.trim() : "";
+        String mar = StringUtils.hasText(marca) ? marca.trim() : "";
+        String patron = StringUtils.hasText(q) ? "%" + q.trim().toLowerCase() + "%" : "";
+        return productos.buscar(cat, mar, patron).stream()
                 .map(this::aResumen)
                 .toList();
     }
@@ -124,9 +127,5 @@ public class CatalogoService {
         return new ProductoResumen(p.getId(), p.getSlug(), p.getNombre(), p.getSubcategoria(),
                 p.getResumen(), p.getCategoria().getSlug(), p.getMarca().getSlug(), p.getImagenUrl(),
                 Boolean.TRUE.equals(p.getDestacado()), Boolean.TRUE.equals(p.getCompleto()));
-    }
-
-    private String limpiar(String valor) {
-        return StringUtils.hasText(valor) ? valor.trim() : null;
     }
 }

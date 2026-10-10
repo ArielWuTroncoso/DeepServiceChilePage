@@ -14,22 +14,30 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     boolean existsBySlug(String slug);
 
-    /** Búsqueda del catálogo público: filtros opcionales por categoría, marca y texto. */
+    /**
+     * Búsqueda del catálogo público: filtros opcionales por categoría, marca y texto.
+     *
+     * Los parámetros nunca llegan como null: un texto vacío ('') significa "sin filtro".
+     * PostgreSQL no sabe qué tipo darle a un parámetro null dentro de LOWER/CONCAT y la
+     * consulta fallaba justo en el caso más común (listar todo sin buscar nada).
+     * {@code patron} llega ya en minúsculas y con los comodines puestos: "%texto%".
+     */
     @Query("""
            SELECT DISTINCT p FROM Producto p
            JOIN FETCH p.categoria c
            JOIN FETCH p.marca m
            WHERE p.activo = true
-             AND (:categoria IS NULL OR c.slug = :categoria)
-             AND (:marca IS NULL OR m.slug = :marca)
-             AND (:q IS NULL
-                  OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-                  OR LOWER(p.resumen) LIKE LOWER(CONCAT('%', :q, '%')))
+             AND (:categoria = '' OR c.slug = :categoria)
+             AND (:marca = '' OR m.slug = :marca)
+             AND (:patron = ''
+                  OR LOWER(p.nombre) LIKE :patron
+                  OR LOWER(COALESCE(p.resumen, '')) LIKE :patron
+                  OR LOWER(m.nombre) LIKE :patron)
            ORDER BY p.destacado DESC, p.nombre ASC
            """)
     List<Producto> buscar(@Param("categoria") String categoria,
                           @Param("marca") String marca,
-                          @Param("q") String q);
+                          @Param("patron") String patron);
 
     long countByCategoriaSlug(String slug);
 
