@@ -35,7 +35,7 @@ npm install
 npm run dev
 ```
 
-Vite redirige `/api`, `/auth` y `/usuarios` al backend, así que en desarrollo no
+Vite redirige `/api` y `/auth` al backend, así que en desarrollo no
 hace falta configurar CORS.
 
 Sin configuración extra levanta con **H2 en memoria** y siembra el catálogo de
@@ -45,6 +45,27 @@ ejemplo. Usuario administrador inicial:
 correo:     admin@deepservicechile.cl
 contraseña: DeepService2026        ← cambiar en el primer ingreso
 ```
+
+---
+
+## Acceso de administradores
+
+La plataforma de gestión es solo para administradores y no tiene enlaces públicos.
+
+1. En cualquier página del sitio, pulsa la tecla **↑** y enseguida la **↓** (dentro de ~1 s).
+   No funciona mientras se escribe en un campo de texto.
+2. Se abre `/acceso`. Quien aún no tiene cuenta usa **Registrarme**: nombre, correo,
+   contraseña y el **código de autorización**. La contraseña debe tener entre 8 y 72
+   caracteres, con mayúscula, minúscula, número y símbolo, y sin espacios (el backend
+   lo valida; la pantalla lo muestra en vivo).
+3. Al registrarse se inicia sesión y se entra a `/admin`, donde primero aparece la
+   **ventana de bienvenida al perfil** (una sola vez por cuenta). Después, **Ingresar**
+   con correo y contraseña.
+
+El registro lo protege el backend, no la secuencia de teclas: exige
+`ADMIN_REGISTRO_CODIGO` y, si esa variable está vacía, **el registro queda cerrado**.
+Defínela con un valor largo (`openssl rand -base64 24`) y entrégala solo a quien deba
+ser administrador. En local: `ADMIN_REGISTRO_CODIGO=mi-codigo ./mvnw spring-boot:run`.
 
 ---
 
@@ -83,7 +104,7 @@ src/
 ├── data/                       empresa.js · catalogo.js (+ versiones .en.js en inglés)
 ├── i18n/                       IdiomaContext (ES/EN), datos.js (hooks), errores.js
 ├── pages/                      Home, Productos, Producto, Servicios, Marcas,
-│                               Nosotros, Contacto, Login, Registro, Admin, 404
+│                               Nosotros, Contacto, Acceso, Admin, 404
 └── main/java/cl/deepservice/   model · dto · repository · service · controller
                                 security · exception · web · config
 ```

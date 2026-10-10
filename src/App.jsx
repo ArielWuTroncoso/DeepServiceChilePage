@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import AccesoSecreto from './components/auth/AccesoSecreto';
 import CardSkeleton from './components/skeletons/CardSkeleton';
 import { AuthProvider } from './context/AuthContext';
 import { useIdioma } from './i18n/IdiomaContext';
@@ -14,8 +15,7 @@ const ServiciosPage = lazy(() => import('./pages/ServiciosPage'));
 const MarcasPage    = lazy(() => import('./pages/MarcasPage'));
 const NosotrosPage  = lazy(() => import('./pages/NosotrosPage'));
 const ContactoPage  = lazy(() => import('./pages/ContactoPage'));
-const LoginPage     = lazy(() => import('./pages/LoginPage'));
-const RegistroPage  = lazy(() => import('./pages/RegistroPage'));
+const AccesoPage    = lazy(() => import('./pages/AccesoPage'));
 const AdminPage     = lazy(() => import('./pages/AdminPage'));
 const NotFoundPage  = lazy(() => import('./pages/NotFoundPage'));
 
@@ -32,6 +32,7 @@ export default function App() {
     <AuthProvider>
       <a className="ds-skip" href="#contenido">{t('Saltar al contenido', 'Skip to content')}</a>
       <ScrollAlTope />
+      <AccesoSecreto />
       <Header />
 
       <main className="main-content" id="contenido">
@@ -45,8 +46,7 @@ export default function App() {
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
 
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/registro" element={<RegistroPage />} />
+            <Route path="/acceso" element={<AccesoPage />} />
             <Route
               path="/admin"
               element={<ProtectedRoute soloAdmin><AdminPage /></ProtectedRoute>}

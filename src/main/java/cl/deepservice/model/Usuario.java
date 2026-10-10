@@ -37,6 +37,10 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    /** Pasa a true cuando la persona cierra la ventana de bienvenida de su perfil. */
+    @Column(name = "bienvenida_vista", nullable = false, columnDefinition = "boolean default false")
+    private Boolean bienvenidaVista = false;
+
     @Column(name = "fecha_creacion", nullable = false)
     private OffsetDateTime fechaCreacion = OffsetDateTime.now();
 

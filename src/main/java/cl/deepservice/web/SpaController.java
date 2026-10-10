@@ -14,7 +14,7 @@ public class SpaController {
     @GetMapping({
             "/", "/productos", "/productos/**", "/servicios",
             "/marcas", "/nosotros", "/contacto",
-            "/login", "/registro", "/admin"
+            "/acceso", "/admin"
     })
     public String index() {
         return "forward:/index.html";

@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children, soloAdmin = false }) {
   const location = useLocation();
 
   if (cargando) return <LoadingScreen mensaje="Verificando tu sesión" />;
-  if (!autenticado) return <Navigate to="/login" replace state={{ desde: location.pathname }} />;
+  if (!autenticado) return <Navigate to="/acceso" replace state={{ desde: location.pathname }} />;
   if (soloAdmin && !esAdmin) return <Navigate to="/" replace />;
 
   return children;

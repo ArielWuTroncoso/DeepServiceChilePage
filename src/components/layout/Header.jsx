@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, Moon, Sun, User, X } from 'lucide-react';
+import { LogOut, Menu, Moon, Sun, X } from 'lucide-react';
 import Logo from './Logo';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/useAuth';
@@ -94,15 +94,14 @@ export default function Header() {
               {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
             </button>
 
-            {autenticado ? (
+            {/* El acceso de administradores no tiene enlace público: se entra con ↑ ↓. */}
+            {autenticado && (
               <>
                 {esAdmin && <Link to="/admin" className="ds-btn ds-btn--onDark ds-btn--sm">{t('Panel', 'Admin')}</Link>}
                 <button type="button" className="hdr__icon-btn" onClick={salir} aria-label={t('Cerrar sesión', 'Sign out')}>
                   <LogOut size={19} />
                 </button>
               </>
-            ) : (
-              <Link to="/login" className="hdr__icon-btn" aria-label={t('Iniciar sesión', 'Sign in')}><User size={19} /></Link>
             )}
 
             <Link to="/contacto" className="ds-btn ds-btn--primary ds-btn--sm">{t('Cotizar', 'Get a quote')}</Link>
@@ -134,9 +133,9 @@ export default function Header() {
           ))}
           <div className="hdr__mobile-cta">
             <Link to="/contacto" className="ds-btn ds-btn--primary ds-btn--sm">{t('Cotizar', 'Get a quote')}</Link>
-            {autenticado
-              ? <button type="button" className="ds-btn ds-btn--onDark ds-btn--sm" onClick={salir}>{t('Cerrar sesión', 'Sign out')}</button>
-              : <Link to="/login" className="ds-btn ds-btn--onDark ds-btn--sm">{t('Iniciar sesión', 'Sign in')}</Link>}
+            {autenticado && (
+              <button type="button" className="ds-btn ds-btn--onDark ds-btn--sm" onClick={salir}>{t('Cerrar sesión', 'Sign out')}</button>
+            )}
           </div>
         </nav>
       </div>

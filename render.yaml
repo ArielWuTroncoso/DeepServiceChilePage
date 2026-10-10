@@ -39,6 +39,8 @@ services:
         generateValue: true
       - key: JWT_EXPIRATION
         value: "86400000"
+      - key: ADMIN_REGISTRO_CODIGO
+        sync: false   # codigo para registrar administradores (vacio = registro cerrado)
       - key: FRONTEND_ORIGINS
         sync: false   # https://deep-service-frontend.onrender.com
       - key: PORT

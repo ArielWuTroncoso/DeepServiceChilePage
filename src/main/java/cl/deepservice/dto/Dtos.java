@@ -2,6 +2,7 @@ package cl.deepservice.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.OffsetDateTime;
@@ -19,15 +20,27 @@ public final class Dtos {
 
     public record LoginResponse(String token, UsuarioResponse usuario) { }
 
-    public record RegistroRequest(
-            @NotBlank(message = "El nombre es obligatorio") @Size(max = 150) String nombre,
-            @NotBlank(message = "El correo es obligatorio") @Email(message = "Correo invalido") String correo,
-            @NotBlank(message = "La contrasena es obligatoria")
-            @Size(min = 8, message = "La contrasena debe tener al menos 8 caracteres") String contrasena,
-            String telefono,
-            String empresa) { }
+    /**
+     * Contrasena estandar: 8 a 72 caracteres (72 es el limite de BCrypt), con minuscula,
+     * mayuscula, numero y simbolo, y sin espacios. Debe coincidir con src/utils/clave.js.
+     */
+    public static final String REGEX_CONTRASENA =
+            "^(?=.*\\p{Ll})(?=.*\\p{Lu})(?=.*\\d)(?=.*[^\\p{L}\\d\\s])\\S{8,72}$";
 
-    public record UsuarioResponse(Long id, String nombre, String correo, String empresa, List<String> roles) { }
+    /** Alta de un administrador. El codigo lo entrega quien administra el sitio. */
+    public record RegistroAdminRequest(
+            @NotBlank(message = "El nombre es obligatorio") @Size(max = 150) String nombre,
+            @NotBlank(message = "El correo es obligatorio") @Email(message = "Correo invalido")
+            @Size(max = 180) String correo,
+            @NotBlank(message = "La contrasena es obligatoria")
+            @Pattern(regexp = REGEX_CONTRASENA,
+                    message = "La contrasena debe tener entre 8 y 72 caracteres, con mayuscula, minuscula, numero y simbolo, y sin espacios")
+            String contrasena,
+            @NotBlank(message = "El codigo de autorizacion es obligatorio") @Size(max = 200) String codigo) { }
+
+    public record UsuarioResponse(
+            Long id, String nombre, String correo, String empresa, List<String> roles,
+            OffsetDateTime fechaCreacion, boolean bienvenidaVista) { }
 
     // ----- Catalogo -----
     public record CategoriaResponse(Long id, String slug, String nombre, String descripcion, String icono, long totalProductos) { }

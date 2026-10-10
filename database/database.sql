@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     telefono         VARCHAR(30),
     empresa          VARCHAR(150),
     activo           BOOLEAN NOT NULL DEFAULT TRUE,
+    bienvenida_vista BOOLEAN NOT NULL DEFAULT FALSE,
     fecha_creacion   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

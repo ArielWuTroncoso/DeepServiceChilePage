@@ -38,6 +38,10 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000}
 
 app:
+  admin:
+    # Codigo que deben presentar los administradores para registrarse. Sin valor,
+    # el registro queda cerrado. Generar con: openssl rand -base64 24
+    registro-codigo: ${ADMIN_REGISTRO_CODIGO:}
   cors:
     allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173}
   seed:

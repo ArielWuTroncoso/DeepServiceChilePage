@@ -3,6 +3,7 @@ import { Inbox, Package, RefreshCw } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import EmptyState from '../components/common/EmptyState';
 import LoadingScreen from '../components/common/LoadingScreen';
+import BienvenidaPerfil from '../components/auth/BienvenidaPerfil';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { listarProductos } from '../services/catalogoService';
 import { listarSolicitudes, marcarAtendida } from '../services/contactoService';
@@ -54,6 +55,7 @@ export default function AdminPage() {
 
   return (
     <>
+      <BienvenidaPerfil />
       <PageHeader
         eyebrow={t('Interno', 'Internal')}
         titulo={t('Panel de administración', 'Admin panel')}

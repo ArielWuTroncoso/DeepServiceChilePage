@@ -29,7 +29,7 @@ public class SecurityConfig {
     /** Rutas del SPA que Spring debe servir como index.html. */
     public static final String[] RUTAS_SPA = {
             "/", "/index.html", "/productos", "/productos/**", "/servicios",
-            "/marcas", "/nosotros", "/contacto", "/login", "/registro", "/admin",
+            "/marcas", "/nosotros", "/contacto", "/acceso", "/admin",
             "/assets/**", "/favicon.svg", "/favicon.ico", "/error"
     };
 
@@ -62,9 +62,10 @@ public class SecurityConfig {
                                      "/api/productos", "/api/productos/**").permitAll()
                     // Formulario de contacto
                     .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
-                    // Registro e inicio de sesion
-                    .requestMatchers(HttpMethod.POST, "/usuarios", "/auth/login").permitAll()
+                    // Acceso de administradores (el registro exige codigo de autorizacion)
+                    .requestMatchers(HttpMethod.POST, "/auth/admin/registro", "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
+                    .requestMatchers(HttpMethod.POST, "/auth/me/bienvenida").authenticated()
                     // Gestion interna
                     .requestMatchers(HttpMethod.GET, "/api/contacto").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/contacto/**").hasRole("ADMIN")

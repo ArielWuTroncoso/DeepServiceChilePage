@@ -34,6 +34,17 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const registrarAdmin = useCallback(async (datos) => {
+    const data = await authService.registrarAdmin(datos);
+    setUsuario(data.usuario ?? null);
+    return data;
+  }, []);
+
+  const marcarBienvenida = useCallback(async () => {
+    const actualizado = await authService.marcarBienvenidaVista();
+    if (actualizado) setUsuario(actualizado);
+  }, []);
+
   const cerrarSesion = useCallback(() => {
     authService.logout();
     setUsuario(null);
@@ -45,8 +56,10 @@ export function AuthProvider({ children }) {
     autenticado: Boolean(usuario),
     esAdmin: usuario?.roles?.includes('ADMIN') ?? false,
     iniciarSesion,
+    registrarAdmin,
+    marcarBienvenida,
     cerrarSesion,
-  }), [usuario, cargando, iniciarSesion, cerrarSesion]);
+  }), [usuario, cargando, iniciarSesion, registrarAdmin, marcarBienvenida, cerrarSesion]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

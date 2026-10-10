@@ -39,8 +39,17 @@ public class AuthController {
         return usuarioService.porCorreo(auth.getName());
     }
 
-    @PostMapping("/usuarios")
-    public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody RegistroRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrar(req));
+    /** Registro de administradores: crea la cuenta y deja la sesion iniciada. */
+    @PostMapping("/auth/admin/registro")
+    public ResponseEntity<LoginResponse> registrarAdmin(@Valid @RequestBody RegistroAdminRequest req) {
+        UsuarioResponse usuario = usuarioService.registrarAdmin(req);
+        String token = jwtService.generar(usuario.correo(), Map.of("nombre", usuario.nombre()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new LoginResponse(token, usuario));
+    }
+
+    /** La persona cerro la ventana de bienvenida de su perfil: no se vuelve a mostrar. */
+    @PostMapping("/auth/me/bienvenida")
+    public UsuarioResponse bienvenidaVista(Authentication auth) {
+        return usuarioService.marcarBienvenidaVista(auth.getName());
     }
 }

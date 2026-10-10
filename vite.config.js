@@ -26,7 +26,6 @@ export default defineConfig({
     proxy: {
       '/api': { target: 'http://localhost:8080', changeOrigin: true },
       '/auth': { target: 'http://localhost:8080', changeOrigin: true },
-      '/usuarios': { target: 'http://localhost:8080', changeOrigin: true },
     },
   },
   test: {

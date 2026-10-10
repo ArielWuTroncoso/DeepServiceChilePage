@@ -59,10 +59,52 @@
 .auth__form { width: min(440px, 100%); }
 .auth__form h1 { font-size: clamp(1.7rem, 3.4vw, 2.3rem); margin-bottom: 8px; }
 .auth__form > p { color: var(--ink-soft); margin-bottom: 28px; }
+.auth__lead { color: var(--ink-soft); margin-bottom: 28px; }
 .auth__submit { width: 100%; margin-top: 8px; }
 .auth__alt { margin-top: 22px; text-align: center; font-size: .92rem; color: var(--ink-soft); }
 .auth__alt a { color: var(--b-600); font-weight: 700; }
 .auth__alt a:hover { text-decoration: underline; }
+
+.auth__link { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 700; color: var(--b-600); }
+.auth__link:hover { text-decoration: underline; }
+
+/* Pestañas Registrarme / Ingresar */
+.auth__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 28px; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius-pill); }
+.auth__tabs button { padding: 10px 14px; border: 0; border-radius: var(--radius-pill); background: transparent; cursor: pointer; font-weight: 700; font-size: .9rem; color: var(--ink-faint); transition: background .18s ease, color .18s ease; }
+.auth__tabs button:hover { color: var(--ink); }
+.auth__tabs button.is-active { background: var(--surface); color: var(--b-600); box-shadow: var(--shadow-sm); }
+
+/* Contraseña: campo con botón de mostrar/ocultar y lista de condiciones */
+.pw { position: relative; }
+.pw input { padding-right: 48px; }
+.pw__toggle { position: absolute; top: 0; right: 0; bottom: 0; width: 46px; display: grid; place-items: center; background: transparent; border: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; cursor: pointer; color: var(--ink-faint); }
+.pw__toggle:hover { color: var(--b-600); }
+.pw-rules { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 4px; }
+.pw-rules li { display: flex; align-items: center; gap: 7px; font-size: .8rem; color: var(--ink-faint); }
+.pw-rules li svg { flex: 0 0 auto; }
+.pw-rules li.is-ok { color: var(--ok); font-weight: 600; }
+@media (max-width: 420px) { .pw-rules { grid-template-columns: 1fr; } }
+
+/* Ventana de bienvenida al perfil */
+.modal { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 20px; overflow-y: auto; background: rgba(6, 25, 43, .72); backdrop-filter: blur(3px); animation: modal-fondo .2s ease; }
+.modal__card { width: min(480px, 100%); padding: clamp(24px, 4vw, 38px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: modal-entrada .26s ease; }
+.modal__icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 16px; border-radius: 14px; color: #fff; background: linear-gradient(160deg, var(--b-500), var(--b-800)); }
+.modal__card h2 { font-size: clamp(1.7rem, 4vw, 2.2rem); margin: 12px 0 8px; }
+.modal__card > p { color: var(--ink-soft); line-height: 1.55; }
+.modal__perfil { display: grid; margin: 20px 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.modal__perfil > div { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.modal__perfil > div:last-child { border-bottom: 0; }
+.modal__perfil dt { font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); align-self: center; }
+.modal__perfil dd { font-weight: 600; font-size: .94rem; overflow-wrap: anywhere; }
+.modal__lista { list-style: none; display: grid; gap: 10px; margin-bottom: 18px; }
+.modal__lista li { display: flex; gap: 11px; align-items: flex-start; font-size: .92rem; color: var(--ink-soft); line-height: 1.5; }
+.modal__lista svg { color: var(--b-500); flex: 0 0 auto; margin-top: 2px; }
+.modal__nota { font-size: .82rem; color: var(--ink-faint); margin-bottom: 22px; }
+.modal__cta { width: 100%; }
+@keyframes modal-fondo { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-entrada { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .modal, .modal__card { animation: none; } }
+@media (max-width: 420px) { .modal__perfil > div { grid-template-columns: 1fr; gap: 2px; } }
 
 /* ===== Páginas de contenido ===== */
 .prose { max-width: 74ch; }
