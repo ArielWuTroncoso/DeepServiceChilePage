@@ -1,0 +1,10 @@
+node_modules/
+dist/
+target/
+src/main/resources/static/
+.env
+.env.local
+*.log
+.DS_Store
+.idea/
+.vscode/
