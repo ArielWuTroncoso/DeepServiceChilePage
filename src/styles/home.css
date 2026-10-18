@@ -174,12 +174,12 @@
 .svc-cta p { font-size: .93rem; line-height: 1.5; color: var(--on-dark-soft); flex: 1 1 auto; }
 
 /* ===== Carrusel de videos de portada =====
-   Un solo marco horizontal (proporción de los videos, 848×480). Al terminar
+   Un solo marco horizontal 16:9 (proporción de los videos, 960×540). Al terminar
    un video, el actual sale hacia la izquierda y el siguiente entra desde la
    derecha. */
 .hero-car { width: 100%; }
 .hero-car__frame {
-  position: relative; width: 100%; aspect-ratio: 848 / 480; overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden;
   border-radius: var(--radius-lg); background: #0C3050;
   border: 1px solid rgba(174, 226, 250, .35);
   box-shadow: 0 30px 70px rgba(4, 18, 32, .5), 0 0 0 6px rgba(174, 226, 250, .08);
@@ -196,7 +196,8 @@
 .hero-car__slide.is-saliendo { transform: translateX(-100%); z-index: 1; }
 .hero-car__slide video { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hero-car__tag {
-  position: absolute; top: 12px; left: 12px;
+  /* abajo: arriba a la izquierda los videos traen sus propios rótulos */
+  position: absolute; bottom: 12px; left: 12px;
   padding: 6px 11px; border-radius: var(--radius-pill);
   background: rgba(6, 25, 43, .72); backdrop-filter: blur(6px);
   color: #fff; font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
@@ -227,7 +228,7 @@
 .hero-car__toggle:focus-visible, .hero-car__dot:focus-visible { outline: 2px solid var(--b-300); outline-offset: 3px; border-radius: 6px; }
 
 @media (max-width: 520px) {
-  .hero-car__tag { top: 8px; left: 8px; font-size: .58rem; padding: 4px 9px; }
+  .hero-car__tag { bottom: 8px; left: 8px; font-size: .58rem; padding: 4px 9px; }
   .hero-car__bar { margin-top: 12px; gap: 10px; }
   .hero-car__dot { font-size: .64rem; }
 }

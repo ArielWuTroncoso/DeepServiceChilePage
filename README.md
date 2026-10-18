@@ -173,34 +173,47 @@ debe existir en la base, replicarlo en `DataSeeder.java` con `ficha(...)`.
 
 ### Videos de portada
 
-Carrusel en la portada (`src/components/home/HeroVideos.jsx`): se reproduce el
-video del **sonar**; al terminar, el marco se desliza al del **plóter GPS**; al
-terminar ése, vuelve al primero. Debajo hay un botón de pausa y un indicador por
-video con su avance (también sirven para saltar de uno a otro).
+Carrusel en la portada (`src/components/home/HeroVideos.jsx`) con tres videos:
+**Sonares FSV-85 · FSV-25S** → **Puente de mando** → **Sonar CSH-5L Mark-2**. Al
+terminar uno, el marco se desliza al siguiente; al terminar el último, vuelve al
+primero. Debajo hay un botón de pausa y un indicador por video con su avance
+(también sirven para saltar de uno a otro).
 
-Ambos archivos comparten la proporción horizontal del marco. El sonar se grabó en
-vertical, así que va montado sobre una copia difuminada de sí mismo, sin recortar
-el video original.
+Los tres son 16:9 (960×540), igual que el marco; las tomas verticales ya vienen
+montadas sobre una copia difuminada de sí mismas desde la edición. Como los
+videos traen sus propios rótulos arriba a la izquierda y el logo arriba a la
+derecha, la etiqueta del carrusel va abajo a la izquierda.
 
-| Archivo | Peso | Quién lo descarga |
-|---|---|---|
-| `portada-sonar.webm` · `portada-gps.webm` (AV1) | 759 + 872 KB | Chrome, Edge, Firefox |
-| `portada-sonar.mp4` · `portada-gps.mp4` (H.264) | 1.203 + 1.094 KB | Safari y equipos sin AV1 |
-| `portada-*.webp` (póster) | 19 + 26 KB | Todos, al cargar |
+| Archivo | Duración | AV1 `.webm` (Chrome, Edge, Firefox) | H.264 `.mp4` (Safari y sin AV1) | Póster `.webp` |
+|---|---|---|---|---|
+| `portada-sonares-fsv` | 80 s | 5,6 MB | 7,6 MB | 17 KB |
+| `portada-puente` | 76 s | 5,1 MB | 7,1 MB | 47 KB |
+| `portada-sonar-csh5l` | 96 s | 3,6 MB | 5,6 MB | 10 KB |
 
-Originales: 6,9 MB con audio. Codificación: sin audio, H.264 CRF 26 / AV1 CRF 38.
+Originales: 1920×1080 con audio, ~84 MB en total. Codificación: 960×540, sin
+audio, H.264 CRF 26 (High@3.1, `+faststart`) / AV1 CRF 38 (SVT-AV1).
 
 **Consumo** (plan Hobby de Render: 5 GB/mes):
-- Al cargar sólo bajan los pósters. El 1.er video empieza cuando el marco está en
-  pantalla; el 2.º se descarga recién cuando al 1.º le quedan 5 s.
-- Visita que ve ambos: ~2,0 MB (AV1) / ~2,8 MB (Safari) → **~1.800 visitas nuevas
-  al mes en el peor caso**. Quien se va antes de terminar el 1.er video gasta menos.
+- Al cargar sólo bajan los pósters (~75 KB). El 1.er video empieza cuando el
+  marco está en pantalla; el siguiente se descarga recién cuando al actual le
+  quedan 5 s.
+- Visita que ve el 1.er video completo: ~5,6 MB (AV1) / ~7,6 MB (Safari) →
+  **~700–900 visitas nuevas al mes en el peor caso**. Ver los tres: ~14 MB (AV1)
+  / ~21 MB (Safari). Quien se va antes gasta menos.
 - Las vueltas siguientes del carrusel no vuelven a descargar.
 - Con "ahorro de datos" o conexión 2G quedan los pósters fijos. "Reducir
   movimiento" **no** detiene los videos (el visitante tiene el botón de pausa).
 
-Para reemplazar un video: mismo encuadre horizontal, **nombre nuevo** (por la
-caché) y actualizar `CLIPS` en el componente.
+Para reemplazar un video: encuadre horizontal 16:9, **nombre nuevo** (por la
+caché) y actualizar `CLIPS` en el componente. Comandos usados:
+
+```bash
+VF="scale=960:540:flags=lanczos,format=yuv420p"
+ffmpeg -i original.mp4 -an -vf "$VF" -c:v libx264 -preset slow -crf 26 \
+  -profile:v high -level 3.1 -movflags +faststart portada-x.mp4
+ffmpeg -i original.mp4 -an -vf "$VF" -c:v libsvtav1 -preset 5 -crf 38 -g 240 portada-x.webm
+ffmpeg -ss 3 -i portada-x.mp4 -frames:v 1 -c:v libwebp -quality 70 portada-x.webp
+```
 
 ### Idiomas (español / inglés)
 

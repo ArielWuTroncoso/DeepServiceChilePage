@@ -6,37 +6,45 @@ import { useIdioma } from '../../i18n/IdiomaContext';
  * Carrusel de videos de portada: se ve un video; al terminar, el marco se
  * desliza al siguiente; al terminar el último, vuelve al primero.
  *
- * Los dos archivos comparten la proporción horizontal del marco. El sonar se
- * grabó en vertical, así que viene montado sobre una copia difuminada de sí
- * mismo (sin recortar el video original).
+ * Los tres archivos son 16:9, igual que el marco. Las tomas verticales ya
+ * vienen montadas sobre una copia difuminada de sí mismas en la edición.
  *
  * Ancho de banda (plan Hobby de Render: 5 GB/mes):
  *   · Al cargar la página sólo bajan los pósters (~20–26 KB c/u).
  *   · El primer video empieza cuando el marco está en pantalla y la página
- *     terminó de cargar. El SEGUNDO sólo se descarga cuando al primero le
+ *     terminó de cargar. El SIGUIENTE sólo se descarga cuando al actual le
  *     quedan ~5 s: quien se va antes no lo descarga.
  *   · Con "ahorro de datos" o conexión 2G se quedan los pósters fijos.
- *   · Los dos <video> quedan montados, así las vueltas siguientes usan lo que
+ *   · Los <video> quedan montados, así las vueltas siguientes usan lo que
  *     ya está en memoria y no vuelven a descargar.
  */
 
 const CLIPS = [
   {
-    id: 'sonar',
-    base: '/video/portada-sonar',
-    etiqueta: { es: 'Sonar', en: 'Sonar' },
+    id: 'sonares-fsv',
+    base: '/video/portada-sonares-fsv',
+    etiqueta: { es: 'Sonares FSV-85 · FSV-25S', en: 'FSV-85 · FSV-25S sonars' },
     descripcion: {
-      es: 'Sonar Furuno en operación a bordo y vista desde el puente de mando.',
-      en: 'Furuno sonar operating on board, and the view from the bridge.',
+      es: 'Sonares Furuno FSV-85 y FSV-25S en operación a bordo.',
+      en: 'Furuno FSV-85 and FSV-25S sonars operating on board.',
     },
   },
   {
-    id: 'gps',
-    base: '/video/portada-gps',
-    etiqueta: { es: 'Plóter GPS', en: 'GPS plotter' },
+    id: 'puente',
+    base: '/video/portada-puente',
+    etiqueta: { es: 'Puente de mando', en: 'Bridge' },
     descripcion: {
-      es: 'Plóter GPS Garmin en operación y vista de la flota pesquera en la bahía.',
-      en: 'Garmin GPS plotter in operation, and the fishing fleet in the bay.',
+      es: 'Equipos Furuno en el puente de mando y vista de la flota en la bahía.',
+      en: 'Furuno equipment on the bridge, and the fleet in the bay.',
+    },
+  },
+  {
+    id: 'sonar-csh5l',
+    base: '/video/portada-sonar-csh5l',
+    etiqueta: { es: 'Sonar CSH-5L Mark-2', en: 'CSH-5L Mark-2 sonar' },
+    descripcion: {
+      es: 'Sonar Furuno CSH-5L Mark-2 en operación a bordo.',
+      en: 'Furuno CSH-5L Mark-2 sonar operating on board.',
     },
   },
 ];
