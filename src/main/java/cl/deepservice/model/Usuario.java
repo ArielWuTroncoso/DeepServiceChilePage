@@ -44,6 +44,13 @@ public class Usuario {
     @Column(name = "fecha_creacion", nullable = false)
     private OffsetDateTime fechaCreacion = OffsetDateTime.now();
 
+    /**
+     * Cuándo se cambió la contraseña por última vez. Las sesiones iniciadas antes
+     * de esa fecha dejan de valer (así, cambiar la clave cierra cualquier sesión ajena).
+     */
+    @Column(name = "clave_cambiada_en")
+    private OffsetDateTime claveCambiadaEn;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_rol",

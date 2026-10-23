@@ -1,348 +1,124 @@
-# Deep Service Chile — Sitio web
+# Deep Service Chile
 
-Sitio corporativo y catálogo de **Deep Service Chile**, empresa de soluciones y
-respaldo técnico en equipos electrónicos marinos para navegación y pesca.
+Sitio web oficial de **Deep Service Chile**, empresa de Talcahuano (Región del Biobío)
+dedicada a las **soluciones y respaldo técnico en equipos electrónicos marinos asociados
+a la navegación y la pesca**.
 
-Construido sobre la misma arquitectura del proyecto **Abrazamente**: SPA de React
-servida por una API REST de Spring Boot, desplegable en Render como dos servicios
-separados o como uno solo.
+El sitio presenta a la empresa, sus servicios y su catálogo de equipos, y le permite a los
+clientes pedir una cotización. Además incluye un **panel privado de administración** para que
+el equipo gestione los mensajes recibidos, el stock y los equipos del catálogo.
 
 ---
 
-## Stack
+## La empresa
 
-| Capa | Tecnología |
+Deep Service Chile es **entidad técnica aprobada por la administración chilena** y atiende a
+lanchas pesqueras artesanales, barcos de pesca industrial, agencias navieras, embarcaciones
+fleteras y remolcadores, y barcos mercantes.
+
+**Servicios**
+
+- Mantenimiento de sonares Furuno
+- Instalación y puesta en marcha de equipos
+- Mantenimiento de antenas de radar Furuno
+- Inspecciones y certificaciones GMDSS, AIS, SART y RLS
+- Software de navegación y cartas de pesca
+- Puesta en marcha del sonar en zona de pesca
+- Detección de fallas y reparaciones
+
+**Marcas con las que trabaja:** Furuno, Garmin, Icom, ACR y Marport.
+
+**Contacto**
+
+| | |
 |---|---|
-| Frontend | React 19 · Vite · React Router 7 · Tailwind 4 · lucide-react · framer-motion |
-| Tipografías | Autoalojadas con `@fontsource` (Inter + Barlow Condensed) |
-| Backend | Spring Boot 3.4 · Java 21 · Spring Security + JWT · Spring Data JPA |
-| Base de datos | PostgreSQL en producción · H2 en memoria en desarrollo |
-| Migraciones | Flyway (opcional, `FLYWAY_ENABLED=true`) |
-| Despliegue | Docker multi-stage · Render (`render.yaml`) |
+| Dirección | Volcán Hornopirén 274, Talcahuano, Región del Biobío |
+| Oficina | +56 41 299 5468 |
+| Ejecutivos | Mario Martínez · +56 9 9847 5020 — Cristian Villanueva · +56 9 9844 3485 |
+| Correo | contacto@deepservicechile.cl |
+| Horario | Lunes a viernes, 9:00 a 18:00 h |
+| Instagram | @deep_service_chile |
+
+---
+
+## Qué incluye el sitio
+
+**Sitio público** (en español e inglés, con tema claro y oscuro)
+
+- **Inicio**, **Nosotros**, **Servicios** y **Marcas**; el inicio también muestra a qué tipo de
+  embarcaciones atendemos.
+- **Catálogo** de equipos por categoría, con ficha técnica de cada uno y botón para cotizarlo.
+- **Contacto**: formulario de consulta, datos de la empresa y mapa con cómo llegar.
+- Videos de equipos y de trabajo en faena.
+
+**Panel de administración** (acceso reservado, fuera de los buscadores)
+
+- **Mensajes**: todas las consultas que dejan los clientes, con su texto completo, datos de
+  contacto, filtros y marca de "atendida".
+- **Inventario**: stock de cada equipo con botones para aumentar o disminuir, motivo de cada
+  movimiento e historial. Incluye un buscador con selector en cascada (categoría → marca →
+  producto) para encontrar equipos rápido.
+- **Catálogo**: crear equipos nuevos, editarlos y darlos de baja; los cambios se reflejan en
+  el sitio público.
+- **Mi cuenta**: cambio de contraseña.
+
+---
+
+## Privacidad y seguridad
+
+Los datos de clientes y de inventario solo se pueden ver con una sesión de administrador.
+
+- El público solo puede **enviar** una consulta; no puede leer ni listar nada.
+- Las sesiones duran 8 horas y se cierran solas tras 30 minutos sin actividad.
+- Límite de intentos de acceso y de envíos para frenar abusos y ataques de adivinación.
+- Contraseñas almacenadas con cifrado; se exige una contraseña robusta y se obliga a
+  cambiar la inicial en el primer ingreso.
+- El registro de nuevos administradores requiere un código reservado.
+- Cabeceras de seguridad en el sitio y mensajes de error que no revelan información interna.
+
+---
+
+## Tecnología
+
+- **Sitio:** React y Vite, con tipografías propias (sin servicios externos).
+- **Servidor:** Spring Boot (Java 21), con acceso por sesión firmada (JWT).
+- **Base de datos:** PostgreSQL en producción; migraciones automáticas con Flyway.
+- **Publicación:** Docker y Render (`render.yaml`).
 
 ---
 
 ## Puesta en marcha
 
+Requisitos: Node.js, Java 21 y Maven.
+
 ```bash
-cp .env.example .env      # ajusta lo que necesites
+cp .env.example .env     # completar los valores indicados abajo
 npm install
 
-# Terminal 1 — API en http://localhost:8080
-./mvnw spring-boot:run    # o: mvn spring-boot:run
-
-# Terminal 2 — SPA en http://localhost:5173
-npm run dev
+./mvnw spring-boot:run   # servidor en http://localhost:8080
+npm run dev              # sitio en http://localhost:5173
 ```
 
-Vite redirige `/api` y `/auth` al backend, así que en desarrollo no
-hace falta configurar CORS.
+### Variables importantes
 
-Sin configuración extra levanta con **H2 en memoria** y siembra el catálogo de
-ejemplo. Usuario administrador inicial:
-
-```
-correo:     admin@deepservicechile.cl
-contraseña: DeepService2026        ← cambiar en el primer ingreso
-```
-
----
-
-## Acceso de administradores
-
-La plataforma de gestión es solo para administradores y no tiene enlaces públicos.
-
-1. En cualquier página del sitio, pulsa la tecla **↑** y enseguida la **↓** (dentro de ~1 s).
-   No funciona mientras se escribe en un campo de texto.
-2. Se abre `/acceso`. Quien aún no tiene cuenta usa **Registrarme**: nombre, correo,
-   contraseña y el **código de autorización**. La contraseña debe tener entre 8 y 72
-   caracteres, con mayúscula, minúscula, número y símbolo, y sin espacios (el backend
-   lo valida; la pantalla lo muestra en vivo).
-3. Al registrarse se inicia sesión y se entra a `/admin`, donde primero aparece la
-   **ventana de bienvenida al perfil** (una sola vez por cuenta). Después, **Ingresar**
-   con correo y contraseña.
-
-El registro lo protege el backend, no la secuencia de teclas: exige
-`ADMIN_REGISTRO_CODIGO` y, si esa variable está vacía, **el registro queda cerrado**.
-Defínela con un valor largo (`openssl rand -base64 24`) y entrégala solo a quien deba
-ser administrador. En local: `ADMIN_REGISTRO_CODIGO=mi-codigo ./mvnw spring-boot:run`.
-
----
-
-## Scripts
-
-| Comando | Qué hace |
+| Variable | Para qué sirve |
 |---|---|
-| `npm run dev` | Servidor de desarrollo con recarga en caliente |
-| `npm run build` | Compila el SPA en `src/main/resources/static` (servicio único) |
-| `npm run build:spa` | Compila el SPA en `dist/` (frontend separado en Render) |
-| `npm run lint` | Linter (oxlint) |
-| `npm run test` | Pruebas (vitest) |
+| `JWT_SECRET` | Clave secreta de las sesiones. **Obligatoria en producción**: texto largo y aleatorio (32 caracteres o más). Si falta, el servidor usa una clave temporal y las sesiones se pierden al reiniciar. |
+| `ADMIN_REGISTRO_CODIGO` | Código reservado para crear cuentas de administrador. Sin él, nadie puede registrarse como administrador. |
+| `ADMIN_INICIAL_CORREO` y `ADMIN_INICIAL_CLAVE` | Opcionales. Crean el primer administrador al iniciar. La clave debe tener entre 8 y 72 caracteres, con mayúscula, minúscula, número y símbolo, sin espacios. |
+
+La base de datos y el resto de los ajustes están documentados en `.env.example`.
+En Render, las variables se definen en el panel del servicio (`render.yaml` deja la base
+preparada).
 
 ---
 
-## Estructura
-
-```
-public/
-├── marca/                      Logotipo oficial de Deep Service (blanco y azul)
-├── marcas/                     Logotipos originales: furuno, garmin, icom, acr, marport
-├── img/                        Fotografía de la bahía de San Vicente (sin uso actual)
-├── productos/<slug>/NN.webp    Imágenes del catálogo (tarjeta + galería de cada ficha)
-├── video/                      Videos de portada (AV1 .webm + H.264 .mp4) y sus pósters
-└── favicon.ico · favicon.png · apple-touch-icon.png
-
-src/
-├── main.jsx · App.jsx          Arranque, tipografías y enrutado
-├── index.css                   Sistema de diseño (tokens y primitivas)
-├── styles/                     Hojas por área: layout, home, catálogo, formularios
-├── context/                    AuthContext · ThemeContext (modo claro/oscuro)
-├── services/                   apiClient, auth, catálogo, contacto
-├── hooks/                      useReveal, useDocumentTitle
-├── components/                 layout · common (Logo, MarcaSlot) · skeletons
-├── features/catalogo/          Tarjeta de producto y filtros
-├── data/                       empresa.js · catalogo.js (+ versiones .en.js en inglés)
-├── i18n/                       IdiomaContext (ES/EN), datos.js (hooks), errores.js
-├── pages/                      Home, Productos, Producto, Servicios, Marcas,
-│                               Nosotros, Contacto, Acceso, Admin, 404
-└── main/java/cl/deepservice/   model · dto · repository · service · controller
-                                security · exception · web · config
-```
-
----
-
-## Marca
-
-El logotipo oficial vive en `public/marca/` en dos versiones, ambas con el óvalo
-completo y sin deformación:
-
-| Archivo | Uso |
-|---|---|
-| `deep-service-blanco.png` | Fondos oscuros (cabecera, pie) |
-| `deep-service-azul.png` | Fondos claros y previsualizaciones sociales |
-
-`src/components/layout/Logo.jsx` recibe la **altura** en píxeles y deriva el
-ancho a partir de la proporción real del óvalo, de modo que nunca se distorsiona:
-
-```jsx
-<Logo size={48} />                    {/* versión blanca, fondos oscuros */}
-<Logo size={64} variante="azul" />    {/* versión azul, fondos claros    */}
-```
-
-El nombre de marca se compone en Barlow Condensed junto al emblema:
-**DEEP SERVICE** en blanco y **CHILE** en el azul de acento.
-
-### Logotipos de las marcas representadas
-
-`public/marcas/` contiene los logotipos originales de FURUNO, GARMIN, ICOM, ACR y
-MARPORT, recortados y con fondo transparente. En `src/data/catalogo.js` cada marca
-lleva `logo` (ruta) y `logoRatio` (ancho/alto). `MarcaSlot` usa esa proporción
-para que todos ocupen una superficie visual parecida, y los muestra sobre una
-placa blanca fija para respetar sus colores también en modo oscuro.
-
-Para agregar una marca: dejar su PNG/SVG en `public/marcas/`, añadirla a `MARCAS`
-con su `logoRatio` y, si debe existir en la base, a `DataSeeder.java`.
-
-### Fotografías
-
-| Archivo | Dónde | Notas |
-|---|---|---|
-| `img/bahia-san-vicente.webp/.jpg` | Disponible (antes en la portada) | 960 × 550, resolución nativa |
-| `productos/furuno-fcv-800/01.webp` | Producto destacado de la portada y catálogo | Recorte sin fondo, 570 × 568 |
-
-### Catálogo con imágenes y fichas técnicas
-
-Fichas completas (`completo: true` en `src/data/catalogo.js`), traducidas y
-verificadas contra la documentación oficial Furuno:
-
-| Equipo | Fuente | Imágenes |
-|---|---|---|
-| FCV-800 · sonda de pesca | Folleto FCV-600/FCV-800 y furuno.es | 2 (ángulo, frente) |
-| CH-500 · sonar de búsqueda | Folleto CH-500 (CA000002208) y furuno.com | 4 (equipo, frente, unidades de casco, pantalla) |
-| CSH-5L MARK-2 · sonar de círculo completo | furuno.com, catálogo CSH-5L MARK-2 y furunousa.com | 1 |
-| MODEL 1815 · radar 8,4" | Folleto MODEL1815 (CA000001676) y furuno.com | 4 (frente, ángulo, pantalla TT, soporte) |
-
-Imágenes en `public/productos/<slug>/NN.webp`: fotos recortadas sin fondo (con
-transparencia) o, para pantallas y banners, con su fondo y `ajuste: 'cubrir'`.
-La ficha (`GaleriaProducto.jsx`) muestra la imagen principal a su tamaño real
-como máximo —nunca la amplía— y miniaturas para cambiar de vista.
-
-Para agregar un equipo: copiar el bloque de una ficha completa en
-`src/data/catalogo.js`, dejar sus imágenes en `public/productos/<slug>/` y, si
-debe existir en la base, replicarlo en `DataSeeder.java` con `ficha(...)`.
-
-### Videos de portada
-
-Carrusel en la portada (`src/components/home/HeroVideos.jsx`) con tres videos:
-**Sonares FSV-85 · FSV-25S** → **Puente de mando** → **Sonar CSH-5L Mark-2**. Al
-terminar uno, el marco se desliza al siguiente; al terminar el último, vuelve al
-primero. Debajo hay un botón de pausa y un indicador por video con su avance
-(también sirven para saltar de uno a otro).
-
-Los tres son 16:9 (960×540), igual que el marco; las tomas verticales ya vienen
-montadas sobre una copia difuminada de sí mismas desde la edición. Como los
-videos traen sus propios rótulos arriba a la izquierda y el logo arriba a la
-derecha, la etiqueta del carrusel va abajo a la izquierda.
-
-| Archivo | Duración | AV1 `.webm` (Chrome, Edge, Firefox) | H.264 `.mp4` (Safari y sin AV1) | Póster `.webp` |
-|---|---|---|---|---|
-| `portada-sonares-fsv` | 80 s | 5,6 MB | 7,6 MB | 17 KB |
-| `portada-puente` | 76 s | 5,1 MB | 7,1 MB | 47 KB |
-| `portada-sonar-csh5l` | 96 s | 3,6 MB | 5,6 MB | 10 KB |
-
-Originales: 1920×1080 con audio, ~84 MB en total. Codificación: 960×540, sin
-audio, H.264 CRF 26 (High@3.1, `+faststart`) / AV1 CRF 38 (SVT-AV1).
-
-**Consumo** (plan Hobby de Render: 5 GB/mes):
-- Al cargar sólo bajan los pósters (~75 KB). El 1.er video empieza cuando el
-  marco está en pantalla; el siguiente se descarga recién cuando al actual le
-  quedan 5 s.
-- Visita que ve el 1.er video completo: ~5,6 MB (AV1) / ~7,6 MB (Safari) →
-  **~700–900 visitas nuevas al mes en el peor caso**. Ver los tres: ~14 MB (AV1)
-  / ~21 MB (Safari). Quien se va antes gasta menos.
-- Las vueltas siguientes del carrusel no vuelven a descargar.
-- Con "ahorro de datos" o conexión 2G quedan los pósters fijos. "Reducir
-  movimiento" **no** detiene los videos (el visitante tiene el botón de pausa).
-
-Para reemplazar un video: encuadre horizontal 16:9, **nombre nuevo** (por la
-caché) y actualizar `CLIPS` en el componente. Comandos usados:
+## Pruebas
 
 ```bash
-VF="scale=960:540:flags=lanczos,format=yuv420p"
-ffmpeg -i original.mp4 -an -vf "$VF" -c:v libx264 -preset slow -crf 26 \
-  -profile:v high -level 3.1 -movflags +faststart portada-x.mp4
-ffmpeg -i original.mp4 -an -vf "$VF" -c:v libsvtav1 -preset 5 -crf 38 -g 240 portada-x.webm
-ffmpeg -ss 3 -i portada-x.mp4 -frames:v 1 -c:v libwebp -quality 70 portada-x.webp
+npm test -- --run
 ```
 
-### Idiomas (español / inglés)
-
-El selector **ES | EN** está en la barra superior (en celulares, dentro del menú).
-La elección se recuerda en el navegador y actualiza `<html lang>`, el título de
-la pestaña y la meta descripción. También se puede enlazar directo con `?lang=en`.
-
-| Pieza | Qué hace |
-|---|---|
-| `src/i18n/IdiomaContext.jsx` | Estado del idioma y `t('texto es', 'text en')` |
-| `src/i18n/datos.js` | `useEmpresa()` y `useCatalogo()` devuelven los datos en el idioma activo |
-| `src/data/empresa.en.js` | Servicios, ETA, clientes, FAQ… en inglés (mismas claves) |
-| `src/data/catalogo.en.js` | Categorías, marcas y fichas en inglés, redactadas desde los folletos originales de Furuno |
-| `src/i18n/errores.js` | Traduce por código de respuesta los errores del backend (que vienen en español) |
-
-Para agregar un texto nuevo en un componente: `const { t } = useIdioma();` y
-`t('Texto en español', 'English text')`. Para un producto nuevo: agregar su bloque
-en `catalogo.js` y su traducción (por slug) en `catalogo.en.js`.
-
-### Dirección y mapa
-
-`CONTACTO` en `src/data/empresa.js`: **Volcán Hornopirén 274, Talcahuano**.
-`mapa.ficha` es el enlace compartido de Google Maps; `mapa.embed` alimenta el
-mapa de la página de contacto (sin clave de API, carga diferida, se sirve desde
-Google y no consume ancho de banda de Render) y `mapa.ruta` abre "Cómo llegar".
-
-### Cabecera
-
-`--header-h` en `src/index.css` controla la altura (109 px en escritorio, 92 px en
-móvil) y todo lo que depende de ella: el relleno superior del contenido, los
-filtros y la galería fijos del catálogo. El alto del logo se ajusta en
-`Header.jsx` (`size`) y en las media queries de `.hdr__mark`.
-
 ---
 
-## Servicios
-
-El contenido de la página de servicio técnico está tomado del sitio vigente
-(`deepservicechile.cl/servicio.php`) y vive en `src/data/empresa.js`:
-
-| Export | Contenido |
-|---|---|
-| `SERVICIOS` | Los siete servicios declarados, con sus modelos y alcances |
-| `ENTIDAD_TECNICA` | Los cuatro servicios habilitados como entidad técnica aprobada |
-| `CLIENTES` | Perfil de clientes (artesanal, industrial, navieras, mercantes) |
-| `INTRO_SERVICIOS` · `LEMA` | Textos institucionales |
-
-Editar ahí actualiza a la vez la portada, la página de servicio técnico y el pie.
-
----
-
-## API
-
-| Método | Ruta | Acceso |
-|---|---|---|
-| `GET` | `/api/salud` | público (healthcheck de Render) |
-| `GET` | `/api/categorias` | público |
-| `GET` | `/api/marcas` | público |
-| `GET` | `/api/productos?categoria=&marca=&q=` | público |
-| `GET` | `/api/productos/{slug}` | público |
-| `POST` | `/api/productos` | ADMIN |
-| `PUT` | `/api/productos/{id}` | ADMIN |
-| `DELETE` | `/api/productos/{id}` | ADMIN (baja lógica) |
-| `POST` | `/api/contacto` | público (formulario) |
-| `GET` | `/api/contacto` | ADMIN |
-| `PUT` | `/api/contacto/{id}/atender` | ADMIN |
-| `POST` | `/usuarios` | público (registro) |
-| `POST` | `/auth/login` | público |
-| `GET` | `/auth/me` | autenticado |
-
----
-
-## Despliegue en Render (dos servicios)
-
-`render.yaml` define ambos. Tras el primer despliegue hay que cruzar las URLs:
-
-1. **deep-service-backend** (Docker, `Dockerfile.backend`)
-   `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_DRIVER=org.postgresql.Driver`
-   `FRONTEND_ORIGINS` = URL pública del frontend
-   Health Check Path: `/api/salud`
-2. **deep-service-frontend** (sitio estático, `npm run build:spa` → `dist/`)
-   `VITE_API_URL` = URL pública del backend
-
-Alternativa de **un solo servicio**: usa el `Dockerfile` de la raíz, que compila
-el SPA dentro de los recursos estáticos de Spring Boot. En ese caso `VITE_API_URL`
-queda vacío y `SpaController` resuelve las rutas del router.
-
-> El backend ya trae datos sembrados. Si cambian las marcas o los productos en
-> `DataSeeder.java`, hay que vaciar las tablas o subir la versión de Flyway para
-> que la base los vuelva a cargar.
-
----
-
-## Sistema de diseño
-
-La paleta sale del afiche del FCV-800: **una sola familia de azul** (matiz ~205°)
-con nueve peldaños de luminosidad. El contraste entre secciones se logra
-alternando peldaños, no agregando colores.
-
-| Token | Uso |
-|---|---|
-| `--b-950` `#06192B` | franjas ancla, pie |
-| `--b-900` `#0A2743` | cabecera |
-| `--b-700` `#16507A` | azul medio, superficies sobre oscuro |
-| `--b-600` `#1C6699` | botones primarios, barras de sección |
-| `--b-400` `#3BA2DC` | acento |
-| `--paper` `#F5FAFD` | fondo claro |
-| `--ink` `#082439` | texto principal |
-
-Tipografías: **Barlow Condensed** para títulos, **Inter** para el resto. Ambas se
-empaquetan con el sitio vía `@fontsource` (importadas en `src/main.jsx`), así que
-no dependen de un servicio externo ni producen salto de fuente al cargar.
-
-Primitivas reutilizadas del afiche: `.ds-barlabel` (barra azul de sección),
-`.ds-chip` (ficha de dato técnico), `.ds-tri` (viñeta triangular),
-`.ds-badge` (insignia de icono) y `.ds-dark` (bloque oscuro a sangre).
-
-El sitio incluye **modo claro y oscuro**; el conmutador vive en la cabecera.
-
----
-
-## Pendientes antes de publicar
-
-- [ ] **Imágenes del catálogo**: FCV-800, CH-500, CSH-5L MARK-2 y MODEL 1815 ya
-      tienen fotos y ficha completa; el resto sigue con marco vacío. Al cargar el material basta con completar
-      `imagenUrl` en la API (o `imagen` en `src/data/catalogo.js`).
-- [ ] **Fichas técnicas**: sólo el FCV-800 tiene especificaciones verificadas.
-      El resto está marcado como *ficha en preparación*, y los productos asignados
-      a GARMIN, ICOM, ACR y MARPORT son marcadores de estructura: hay que
-      confirmar qué equipos de cada marca se ofrecen realmente.
-- [ ] **Datos de contacto**: confirmar el correo corporativo en `src/data/empresa.js`.
-- [ ] **Credencial del administrador**: cambiar la contraseña inicial.
+© Deep Service Chile — Talcahuano, Chile.

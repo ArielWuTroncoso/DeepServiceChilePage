@@ -4,11 +4,13 @@ import AuthVisual from '../components/layout/AuthVisual';
 import FieldError from '../components/common/FieldError';
 import { useAuth } from '../context/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useNoIndex } from '../hooks/useNoIndex';
 import { useIdioma } from '../i18n/IdiomaContext';
 import { mensajeError } from '../i18n/errores';
 
 export default function LoginPage() {
   const { t, idioma } = useIdioma();
+  useNoIndex();
   useDocumentTitle(t('Iniciar sesión', 'Sign in'));
   const { iniciarSesion, autenticado } = useAuth();
   const navigate = useNavigate();

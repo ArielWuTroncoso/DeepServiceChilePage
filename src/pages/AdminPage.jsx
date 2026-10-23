@@ -1,165 +1,163 @@
-import { useEffect, useState } from 'react';
-import { Inbox, Package, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Inbox, KeyRound, Package, RefreshCw, Warehouse, X } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
-import EmptyState from '../components/common/EmptyState';
 import LoadingScreen from '../components/common/LoadingScreen';
 import BienvenidaPerfil from '../components/auth/BienvenidaPerfil';
+import ClaveObligatoria from '../components/admin/ClaveObligatoria';
+import SolicitudesPanel from '../components/admin/SolicitudesPanel';
+import InventarioPanel from '../components/admin/InventarioPanel';
+import CatalogoAdminPanel from '../components/admin/CatalogoAdminPanel';
+import CuentaPanel from '../components/admin/CuentaPanel';
+import { useAuth } from '../context/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { listarProductos } from '../services/catalogoService';
-import { listarSolicitudes, marcarAtendida } from '../services/contactoService';
+import { useInactividad } from '../hooks/useInactividad';
+import { useNoIndex } from '../hooks/useNoIndex';
+import { listarEquipos, listarInventario, listarSolicitudes } from '../services/adminService';
 import { useIdioma } from '../i18n/IdiomaContext';
-import { useCatalogo } from '../i18n/datos';
 import { mensajeError } from '../i18n/errores';
+import { estadoStock } from '../utils/inventario';
+
+const MINUTOS_INACTIVIDAD = 30;
 
 const PESTANAS = [
-  { id: 'solicitudes', label: { es: 'Solicitudes de contacto', en: 'Contact requests' }, icono: Inbox },
-  { id: 'productos', label: { es: 'Catálogo', en: 'Catalog' }, icono: Package },
+  { id: 'solicitudes', label: { es: 'Mensajes de clientes', en: 'Client messages' }, icono: Inbox },
+  { id: 'inventario', label: { es: 'Inventario', en: 'Inventory' }, icono: Warehouse },
+  { id: 'catalogo', label: { es: 'Catálogo', en: 'Catalog' }, icono: Package },
+  { id: 'cuenta', label: { es: 'Mi cuenta', en: 'My account' }, icono: KeyRound },
 ];
+
+const NOMBRE_DATO = {
+  solicitudes: { es: 'los mensajes', en: 'the messages' },
+  inventario: { es: 'el inventario', en: 'the inventory' },
+  equipos: { es: 'el catálogo', en: 'the catalog' },
+};
 
 export default function AdminPage() {
   const { t, idioma } = useIdioma();
-  const { nombreCategoria, nombreMarca } = useCatalogo();
+  const { usuario, cerrarSesion } = useAuth();
   useDocumentTitle(t('Panel de administración', 'Admin panel'));
+  useNoIndex();
+  useInactividad(MINUTOS_INACTIVIDAD, cerrarSesion);
+
   const [pestana, setPestana] = useState('solicitudes');
   const [solicitudes, setSolicitudes] = useState([]);
-  const [productos, setProductos] = useState([]);
+  const [inventario, setInventario] = useState([]);
+  const [equipos, setEquipos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState('');
+  const [fallidos, setFallidos] = useState({}); // { solicitudes: 'mensaje', ... }
+  const [aviso, setAviso] = useState('');
+  const vigente = useRef(true);
 
-  const cargar = async () => {
-    setCargando(true); setError('');
-    try {
-      const [s, p] = await Promise.all([
-        listarSolicitudes().catch(() => []),
-        listarProductos().catch(() => []),
-      ]);
-      setSolicitudes(Array.isArray(s) ? s : []);
-      setProductos(Array.isArray(p) ? p : []);
-    } catch (err) {
-      setError(mensajeError(err, idioma));
-    } finally {
-      setCargando(false);
-    }
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    setAviso('');
+    const [s, i, e] = await Promise.allSettled([listarSolicitudes(), listarInventario(), listarEquipos()]);
+    if (!vigente.current) return;
+    const nuevos = {};
+    const tomar = (resultado, clave, poner) => {
+      if (resultado.status === 'fulfilled') poner(Array.isArray(resultado.value) ? resultado.value : []);
+      else nuevos[clave] = mensajeError(resultado.reason, idioma, { contexto: 'panel' });
+    };
+    tomar(s, 'solicitudes', setSolicitudes);
+    tomar(i, 'inventario', setInventario);
+    tomar(e, 'equipos', setEquipos);
+    setFallidos(nuevos);
+    setCargando(false);
+  }, [idioma]);
+
+  useEffect(() => {
+    vigente.current = true;
+    cargar();
+    return () => { vigente.current = false; };
+  }, [cargar]);
+
+  // Un equipo nuevo necesita su fila de inventario: se vuelve a pedir el inventario sin tapar la pantalla.
+  const recargarInventario = useCallback(() => {
+    listarInventario().then((d) => { if (vigente.current && Array.isArray(d)) setInventario(d); }).catch(() => {});
+  }, []);
+
+  const pendientes = useMemo(() => solicitudes.filter((s) => !s.atendida).length, [solicitudes]);
+  const alertasStock = useMemo(() => inventario.filter((i) => i.activo && estadoStock(i) !== 'ok').length, [inventario]);
+  const insignia = { solicitudes: pendientes, inventario: alertasStock };
+
+  const teclasPestana = (e, indice) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault();
+    const sig = (indice + (e.key === 'ArrowRight' ? 1 : PESTANAS.length - 1)) % PESTANAS.length;
+    setPestana(PESTANAS[sig].id);
+    document.getElementById(`tab-${PESTANAS[sig].id}`)?.focus();
   };
 
-  useEffect(() => { cargar(); }, []);
-
-  const atender = async (id) => {
-    try {
-      await marcarAtendida(id);
-      setSolicitudes((lista) => lista.map((s) => (s.id === id ? { ...s, atendida: true } : s)));
-    } catch (err) {
-      setError(mensajeError(err, idioma));
-    }
-  };
+  const clavesFallidas = Object.keys(fallidos);
 
   return (
     <>
-      <BienvenidaPerfil />
+      <ClaveObligatoria />
+      {!usuario?.claveInicial && <BienvenidaPerfil />}
       <PageHeader
         eyebrow={t('Interno', 'Internal')}
         titulo={t('Panel de administración', 'Admin panel')}
-        descripcion={t('Solicitudes recibidas desde el sitio y estado del catálogo publicado.', 'Requests received through the website and status of the published catalog.')}
+        descripcion={t('Mensajes de clientes, inventario de stock y equipos del catálogo.', 'Client messages, stock inventory and catalog equipment.')}
         migas={[{ label: t('Panel', 'Admin') }]}
       />
 
       <section className="ds-section">
         <div className="ds-container">
-          <div className="admin__tabs" role="tablist">
-            {PESTANAS.map(({ id, label, icono: Icono }) => (
+          <div className="admin__tabs" role="tablist" aria-label={t('Secciones del panel', 'Panel sections')}>
+            {PESTANAS.map(({ id, label, icono: Icono }, indice) => (
               <button
                 key={id}
+                id={`tab-${id}`}
                 type="button"
                 role="tab"
                 aria-selected={pestana === id}
+                aria-controls={`panel-${id}`}
+                tabIndex={pestana === id ? 0 : -1}
                 className={`admin__tab${pestana === id ? ' is-active' : ''}`}
                 onClick={() => setPestana(id)}
+                onKeyDown={(e) => teclasPestana(e, indice)}
               >
-                <Icono size={16} style={{ display: 'inline', marginRight: 8, verticalAlign: '-3px' }} />
-                {label[idioma]}
+                <Icono size={16} className="admin__tab-icono" aria-hidden="true" />
+                {label[idioma === 'en' ? 'en' : 'es']}
+                {insignia[id] > 0 && <span className="admin__insignia" aria-label={t(`${insignia[id]} por revisar`, `${insignia[id]} to review`)}>{insignia[id]}</span>}
               </button>
             ))}
-            <button type="button" className="admin__tab" onClick={cargar} style={{ marginLeft: 'auto' }}>
-              <RefreshCw size={16} style={{ display: 'inline', marginRight: 8, verticalAlign: '-3px' }} />
+            <button type="button" className="admin__tab admin__tab--accion" onClick={cargar} disabled={cargando}>
+              <RefreshCw size={16} className="admin__tab-icono" aria-hidden="true" />
               {t('Actualizar', 'Refresh')}
             </button>
           </div>
 
-          {error && <div className="ds-alert ds-alert--err" role="alert">{error}</div>}
-          {cargando && <LoadingScreen mensaje={t('Cargando datos', 'Loading data')} />}
-
-          {!cargando && pestana === 'solicitudes' && (
-            solicitudes.length === 0
-              ? <EmptyState icono={Inbox} titulo={t('Sin solicitudes', 'No requests')} mensaje={t('Las consultas enviadas desde el formulario de contacto aparecerán aquí.', 'Inquiries sent through the contact form will appear here.')} />
-              : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table className="admin__table">
-                    <thead>
-                      <tr>
-                        <th>{t('Fecha', 'Date')}</th><th>{t('Nombre', 'Name')}</th><th>{t('Contacto', 'Contact')}</th>
-                        <th>{t('Interés', 'Interest')}</th><th>{t('Estado', 'Status')}</th><th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {solicitudes.map((s) => (
-                        <tr key={s.id}>
-                          <td>{s.fechaCreacion ? new Date(s.fechaCreacion).toLocaleDateString(idioma === 'en' ? 'en-US' : 'es-CL') : '—'}</td>
-                          <td>
-                            <strong>{s.nombre}</strong>
-                            {s.empresa && <><br /><span style={{ color: 'var(--ink-faint)', fontSize: '.85rem' }}>{s.empresa}</span></>}
-                          </td>
-                          <td>
-                            <a href={`mailto:${s.correo}`}>{s.correo}</a>
-                            {s.telefono && <><br /><a href={`tel:${s.telefono}`}>{s.telefono}</a></>}
-                          </td>
-                          <td>{s.interes || '—'}</td>
-                          <td>
-                            <span className={`admin__state admin__state--${s.atendida ? 'on' : 'off'}`}>
-                              {s.atendida ? t('Atendida', 'Handled') : t('Pendiente', 'Pending')}
-                            </span>
-                          </td>
-                          <td>
-                            {!s.atendida && (
-                              <button type="button" className="ds-btn ds-btn--outline ds-btn--sm" onClick={() => atender(s.id)}>
-                                {t('Marcar atendida', 'Mark as handled')}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )
+          {clavesFallidas.length > 0 && (
+            <div className="ds-alert ds-alert--err" role="alert">
+              {t('No se pudo cargar', 'Could not load')}{' '}
+              {clavesFallidas.map((k) => NOMBRE_DATO[k][idioma === 'en' ? 'en' : 'es']).join(', ')}. {fallidos[clavesFallidas[0]]}{' '}
+              <button type="button" className="adm-enlace" onClick={cargar}>{t('Reintentar', 'Try again')}</button>
+            </div>
+          )}
+          {aviso && (
+            <div className="ds-alert ds-alert--err adm-aviso" role="alert">
+              <span>{aviso}</span>
+              <button type="button" className="adm-aviso__cerrar" onClick={() => setAviso('')} aria-label={t('Cerrar aviso', 'Dismiss')}><X size={16} /></button>
+            </div>
           )}
 
-          {!cargando && pestana === 'productos' && (
-            productos.length === 0
-              ? <EmptyState icono={Package} titulo={t('Catálogo vacío en la API', 'Catalog empty in the API')} mensaje={t('El backend todavía no devuelve productos. El sitio público muestra la estructura local mientras tanto.', 'The backend is not returning products yet. The public site shows the local data in the meantime.')} />
-              : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table className="admin__table">
-                    <thead>
-                      <tr><th>{t('Modelo', 'Model')}</th><th>{t('Marca', 'Brand')}</th><th>{t('Categoría', 'Category')}</th><th>{t('Ficha', 'Specs')}</th></tr>
-                    </thead>
-                    <tbody>
-                      {productos.map((p) => (
-                        <tr key={p.id ?? p.slug}>
-                          <td><strong>{p.nombre}</strong></td>
-                          <td>{nombreMarca(p.marca)}</td>
-                          <td>{nombreCategoria(p.categoria)}</td>
-                          <td>
-                            <span className={`admin__state admin__state--${p.completo ? 'on' : 'off'}`}>
-                              {p.completo ? t('Completa', 'Complete') : t('En preparación', 'In preparation')}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )
-          )}
+          {cargando
+            ? <LoadingScreen mensaje={t('Cargando datos', 'Loading data')} />
+            : (
+              <div role="tabpanel" id={`panel-${pestana}`} aria-labelledby={`tab-${pestana}`} tabIndex={0}>
+                {pestana === 'solicitudes' && !fallidos.solicitudes && (
+                  <SolicitudesPanel solicitudes={solicitudes} setSolicitudes={setSolicitudes} onError={setAviso} />
+                )}
+                {pestana === 'inventario' && !fallidos.inventario && (
+                  <InventarioPanel items={inventario} setItems={setInventario} onError={setAviso} />
+                )}
+                {pestana === 'catalogo' && !fallidos.equipos && (
+                  <CatalogoAdminPanel equipos={equipos} setEquipos={setEquipos} onError={setAviso} alCrear={recargarInventario} />
+                )}
+                {pestana === 'cuenta' && <CuentaPanel />}
+              </div>
+            )}
         </div>
       </section>
     </>

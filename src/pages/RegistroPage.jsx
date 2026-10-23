@@ -4,6 +4,7 @@ import AuthVisual from '../components/layout/AuthVisual';
 import FieldError from '../components/common/FieldError';
 import { registrar } from '../services/authService';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useNoIndex } from '../hooks/useNoIndex';
 import { useIdioma } from '../i18n/IdiomaContext';
 import { mensajeError } from '../i18n/errores';
 
@@ -11,6 +12,7 @@ const VACIO = { nombre: '', correo: '', telefono: '', empresa: '', contrasena: '
 
 export default function RegistroPage() {
   const { t, idioma } = useIdioma();
+  useNoIndex();
   useDocumentTitle(t('Solicitar acceso', 'Request access'));
   const navigate = useNavigate();
 

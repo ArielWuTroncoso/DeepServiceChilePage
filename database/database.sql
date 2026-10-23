@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS usuario (
     empresa          VARCHAR(150),
     activo           BOOLEAN NOT NULL DEFAULT TRUE,
     bienvenida_vista BOOLEAN NOT NULL DEFAULT FALSE,
+    clave_cambiada_en TIMESTAMPTZ,         -- sesiones anteriores a esta fecha dejan de valer
     fecha_creacion   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -89,3 +90,28 @@ CREATE TABLE IF NOT EXISTS solicitud_contacto (
 );
 
 CREATE INDEX IF NOT EXISTS idx_solicitud_fecha ON solicitud_contacto(fecha_creacion DESC);
+
+-- ----------------------------------------------------------------------------
+-- Inventario de stock. Solo lo lee el panel de administracion (API privada).
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS inventario (
+    producto_id    BIGINT PRIMARY KEY REFERENCES producto(id) ON DELETE CASCADE,
+    stock          INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
+    stock_minimo   INTEGER NOT NULL DEFAULT 0 CHECK (stock_minimo >= 0),
+    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Historial de auditoria: nunca se edita ni se borra.
+CREATE TABLE IF NOT EXISTS movimiento_stock (
+    id               BIGSERIAL PRIMARY KEY,
+    producto_id      BIGINT NOT NULL,
+    tipo             VARCHAR(10) NOT NULL CHECK (tipo IN ('ENTRADA', 'SALIDA', 'AJUSTE')),
+    cantidad         INTEGER NOT NULL CHECK (cantidad >= 0),
+    stock_resultante INTEGER NOT NULL CHECK (stock_resultante >= 0),
+    motivo           VARCHAR(200),
+    usuario          VARCHAR(180) NOT NULL,
+    fecha            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_movimiento_producto_fecha ON movimiento_stock(producto_id, fecha DESC);

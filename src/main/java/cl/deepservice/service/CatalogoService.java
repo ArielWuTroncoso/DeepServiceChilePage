@@ -2,7 +2,6 @@ package cl.deepservice.service;
 
 import cl.deepservice.dto.Dtos.*;
 import cl.deepservice.exception.RecursoNoEncontradoException;
-import cl.deepservice.exception.ReglaNegocioException;
 import cl.deepservice.model.Especificacion;
 import cl.deepservice.model.Producto;
 import cl.deepservice.repository.CategoriaRepository;
@@ -56,71 +55,33 @@ public class CatalogoService {
 
     @Transactional(readOnly = true)
     public ProductoDetalle obtener(String slug) {
-        Producto p = productos.findBySlug(slug)
+        Producto p = productos.findBySlugAndActivoTrue(slug)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No encontramos el producto solicitado"));
+        return aDetalle(p);
+    }
 
+    /**
+     * Estado del catálogo para el sitio público: equipos activos (con su ficha, para poder mostrar
+     * los que se agregan desde el panel) y los identificadores de los dados de baja.
+     * Es lo único del panel que el sitio necesita; no trae existencias ni datos internos.
+     */
+    @Transactional(readOnly = true)
+    public EstadoCatalogo estado() {
+        List<ProductoDetalle> activos = productos.listarTodosConDetalle().stream()
+                .filter(p -> Boolean.TRUE.equals(p.getActivo()))
+                .map(this::aDetalle)
+                .toList();
+        return new EstadoCatalogo(activos, productos.slugsInactivos());
+    }
+
+    private ProductoDetalle aDetalle(Producto p) {
         List<EspecificacionDto> specs = p.getEspecificaciones().stream()
                 .sorted(Comparator.comparing(Especificacion::getOrden))
                 .map(e -> new EspecificacionDto(e.getClave(), e.getValor(), e.getOrden()))
                 .toList();
-
         return new ProductoDetalle(p.getId(), p.getSlug(), p.getNombre(), p.getSubcategoria(),
                 p.getResumen(), p.getDescripcion(), p.getCategoria().getSlug(), p.getMarca().getSlug(),
                 p.getImagenUrl(), Boolean.TRUE.equals(p.getDestacado()), Boolean.TRUE.equals(p.getCompleto()), specs);
-    }
-
-    @Transactional
-    public ProductoDetalle crear(ProductoRequest req) {
-        if (productos.existsBySlug(req.slug())) {
-            throw new ReglaNegocioException("Ya existe un producto con ese identificador");
-        }
-        Producto p = new Producto();
-        aplicar(p, req);
-        productos.save(p);
-        return obtener(p.getSlug());
-    }
-
-    @Transactional
-    public ProductoDetalle actualizar(Long id, ProductoRequest req) {
-        Producto p = productos.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No encontramos el producto solicitado"));
-        p.getEspecificaciones().clear();
-        aplicar(p, req);
-        productos.save(p);
-        return obtener(p.getSlug());
-    }
-
-    @Transactional
-    public void eliminar(Long id) {
-        Producto p = productos.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No encontramos el producto solicitado"));
-        p.setActivo(false);   // baja logica: conserva el historial
-        productos.save(p);
-    }
-
-    // ----- apoyo -----
-
-    private void aplicar(Producto p, ProductoRequest req) {
-        p.setSlug(req.slug());
-        p.setNombre(req.nombre());
-        p.setSubcategoria(req.subcategoria());
-        p.setResumen(req.resumen());
-        p.setDescripcion(req.descripcion());
-        p.setImagenUrl(req.imagenUrl());
-        p.setDestacado(Boolean.TRUE.equals(req.destacado()));
-        p.setCompleto(Boolean.TRUE.equals(req.completo()));
-        p.setCategoria(categorias.findBySlug(req.categoria())
-                .orElseThrow(() -> new ReglaNegocioException("La categoria indicada no existe")));
-        p.setMarca(marcas.findBySlug(req.marca())
-                .orElseThrow(() -> new ReglaNegocioException("La marca indicada no existe")));
-
-        if (req.especificaciones() != null) {
-            int orden = 0;
-            for (EspecificacionDto e : req.especificaciones()) {
-                p.agregarEspecificacion(new Especificacion(e.clave(), e.valor(),
-                        e.orden() != null ? e.orden() : orden++));
-            }
-        }
     }
 
     private ProductoResumen aResumen(Producto p) {

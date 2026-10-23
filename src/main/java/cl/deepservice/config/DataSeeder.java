@@ -1,15 +1,20 @@
 package cl.deepservice.config;
 
+import cl.deepservice.dto.Dtos;
 import cl.deepservice.model.*;
+import cl.deepservice.security.CredencialesConocidas;
 import cl.deepservice.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,9 +25,18 @@ import java.util.List;
  * El resto queda como "ficha en preparación" (imagenUrl en null). Los datos
  * son los mismos de src/data/catalogo.js, que es lo que muestra el sitio.
  *
+ * Cada arranque agrega los equipos, categorías y marcas que falten (por su identificador),
+ * sin tocar los que ya existen: lo que se edite desde el panel no se pisa, y los equipos
+ * nuevos del catálogo llegan también a una base ya poblada.
+ *
+ * No existe ninguna cuenta de administrador "de fábrica". Si se definen ADMIN_INICIAL_CORREO y
+ * ADMIN_INICIAL_CLAVE se crea esa cuenta una sola vez; si no, el primer administrador se registra
+ * con el código de ADMIN_REGISTRO_CODIGO.
+ *
  * Se desactiva con SEED_ENABLED=false.
  */
 @Configuration
+@Order(1)
 @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true", matchIfMissing = true)
 public class DataSeeder implements CommandLineRunner {
 
@@ -34,15 +48,21 @@ public class DataSeeder implements CommandLineRunner {
     private final RolRepository roles;
     private final UsuarioRepository usuarios;
     private final PasswordEncoder encoder;
+    private final String adminInicialCorreo;
+    private final String adminInicialClave;
 
     public DataSeeder(CategoriaRepository categorias, MarcaRepository marcas, ProductoRepository productos,
-                      RolRepository roles, UsuarioRepository usuarios, PasswordEncoder encoder) {
+                      RolRepository roles, UsuarioRepository usuarios, PasswordEncoder encoder,
+                      @Value("${app.admin.inicial-correo:}") String adminInicialCorreo,
+                      @Value("${app.admin.inicial-clave:}") String adminInicialClave) {
         this.categorias = categorias;
         this.marcas = marcas;
         this.productos = productos;
         this.roles = roles;
         this.usuarios = usuarios;
         this.encoder = encoder;
+        this.adminInicialCorreo = adminInicialCorreo == null ? "" : adminInicialCorreo.trim();
+        this.adminInicialClave = adminInicialClave == null ? "" : adminInicialClave;
     }
 
     @Override
@@ -50,9 +70,9 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         sembrarRoles();
         sembrarAdministrador();
-        if (categorias.count() == 0) sembrarCategorias();
-        if (marcas.count() == 0) sembrarMarcas();
-        if (productos.count() == 0) sembrarProductos();
+        sembrarCategorias();
+        sembrarMarcas();
+        sembrarProductos();
     }
 
     private void sembrarRoles() {
@@ -61,24 +81,38 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
+    /**
+     * Cuenta inicial opcional. Se crea solo si se entregó correo y clave por variables de entorno,
+     * la clave cumple las reglas del sitio y no es la credencial que estuvo publicada.
+     */
     private void sembrarAdministrador() {
-        String correo = "admin@deepservicechile.cl";
-        if (usuarios.existsByCorreoIgnoreCase(correo)) return;
+        if (adminInicialCorreo.isEmpty() || adminInicialClave.isEmpty()) return;
+
+        if (CredencialesConocidas.CLAVE_INICIAL.equals(adminInicialClave)
+                || CredencialesConocidas.CORREO_INICIAL.equalsIgnoreCase(adminInicialCorreo)) {
+            log.error("ADMIN_INICIAL_* usa la credencial que estuvo publicada: no se crea la cuenta. "
+                    + "Define otro correo y otra clave.");
+            return;
+        }
+        if (!adminInicialClave.matches(Dtos.REGEX_CONTRASENA) || adminInicialClave.getBytes().length > 72) {
+            log.error("ADMIN_INICIAL_CLAVE no cumple las reglas de contrasena: no se crea la cuenta.");
+            return;
+        }
+        if (usuarios.existsByCorreoIgnoreCase(adminInicialCorreo)) return;
 
         Usuario admin = new Usuario();
         admin.setNombre("Administrador");
-        admin.setCorreo(correo);
-        // Credencial inicial de desarrollo: cambiar en el primer ingreso.
-        admin.setContrasenaHash(encoder.encode("DeepService2026"));
+        admin.setCorreo(adminInicialCorreo.toLowerCase());
+        admin.setContrasenaHash(encoder.encode(adminInicialClave));
         roles.findByNombre("ADMIN").ifPresent(r -> admin.getRoles().add(r));
         roles.findByNombre("USUARIO").ifPresent(r -> admin.getRoles().add(r));
         usuarios.save(admin);
 
-        log.warn("Usuario administrador creado: {} — cambia la contrasena inicial.", correo);
+        log.info("Cuenta de administrador inicial creada: {}", admin.getCorreo());
     }
 
     private void sembrarCategorias() {
-        categorias.saveAll(List.of(
+        List<Categoria> todas = List.of(
                 new Categoria("pesca", "Equipos de pesca",
                         "Sondas, sonares y transductores para deteccion bajo el agua.", "Fish", 1),
                 new Categoria("navegacion", "Navegacion",
@@ -88,11 +122,14 @@ public class DataSeeder implements CommandLineRunner {
                 new Categoria("seguridad", "Seguridad",
                         "AIS, radiobalizas, registradores y equipamiento normativo.", "LifeBuoy", 4),
                 new Categoria("accesorios", "Accesorios",
-                        "Transductores, antenas, cables, soportes y repuestos.", "Cable", 5)));
+                        "Transductores, antenas, cables, soportes y repuestos.", "Cable", 5));
+        categorias.saveAll(todas.stream()
+                .filter(c -> categorias.findBySlug(c.getSlug()).isEmpty())
+                .toList());
     }
 
     private void sembrarMarcas() {
-        marcas.saveAll(List.of(
+        List<Marca> todas = List.of(
                 new Marca("furuno", "FURUNO",
                         "Electronica marina japonesa: sonares, radares, sondas, GPS y comunicaciones. "
                                 + "Es la linea sobre la que trabaja nuestro servicio tecnico.", true),
@@ -104,7 +141,10 @@ public class DataSeeder implements CommandLineRunner {
                 new Marca("acr", "ACR",
                         "Equipamiento de seguridad y localizacion de emergencia: radiobalizas RLS/EPIRB, PLB y SART.", false),
                 new Marca("marport", "MARPORT",
-                        "Sensores de monitoreo de captura y control de arte de pesca para flota industrial.", false)));
+                        "Sensores de monitoreo de captura y control de arte de pesca para flota industrial.", false));
+        marcas.saveAll(todas.stream()
+                .filter(m -> marcas.findBySlug(m.getSlug()).isEmpty())
+                .toList());
     }
 
     private void sembrarProductos() {
@@ -137,11 +177,12 @@ public class DataSeeder implements CommandLineRunner {
                 { "Transductores", "Capacidad de conectar 2" } }) {
             fcv800.agregarEspecificacion(new Especificacion(spec[0], spec[1], i++));
         }
-        productos.save(fcv800);
+        List<Producto> todos = new ArrayList<>();
+        todos.add(fcv800);
 
         // --- Fichas completas verificadas contra la documentacion oficial Furuno ---
         //     (mismos datos que src/data/catalogo.js)
-        productos.saveAll(List.of(
+        todos.addAll(List.of(
                 ficha("furuno-ch-500", "CH-500", "Sonar de búsqueda", pesca, furuno,
                         "Sonar de búsqueda (searchlight) con pantalla LCD color de 12,1\" y frecuencias de 60 a 240 kHz: giro del haz ultrarrápido y ecos de alta resolución.",
                         "Sonar de búsqueda de Furuno con pantalla LCD color de 12,1\" XGA. Su motor más rápido y sus seis ángulos de paso seleccionables barren sectores de 24° a 360° en pocos segundos, y los sensores de movimiento integrados —primeros en su clase— estabilizan la imagen cuando la embarcación cabecea y rola, para no perder cardúmenes con mar gruesa.",
@@ -222,7 +263,7 @@ public class DataSeeder implements CommandLineRunner {
                         { "Opcionales", "Soporte de antena OP03-209, zumbador externo OP-3-21, convertidor NMEA IF-NMEA2K2, kit de empotrado, hub Ethernet HUB-101" } })));
 
         // --- Estructura del catalogo: fichas por completar ---
-        productos.saveAll(List.of(
+        todos.addAll(List.of(
                 pendiente("furuno-fcv-600", "FCV-600", "Sonda de pesca", pesca, furuno,
                         "Sonda de pesca a color de 5,7\" con TruEcho CHIRP."),
                 pendiente("gps-plotter", "GPS / Ploter", "GPS / Ploter", nav, furuno,
@@ -254,7 +295,12 @@ public class DataSeeder implements CommandLineRunner {
                 pendiente("ploter-cartografico", "Ploter cartografico", "GPS / Ploter", nav, marca("garmin"),
                         "Navegacion con cartografia integrada para embarcaciones menores.")));
 
-        log.info("Catalogo inicial cargado: {} productos.", productos.count());
+        // Solo se agregan los que faltan: nunca se pisa un equipo ya existente.
+        List<Producto> nuevos = todos.stream().filter(p -> !productos.existsBySlug(p.getSlug())).toList();
+        productos.saveAll(nuevos);
+        if (!nuevos.isEmpty()) {
+            log.info("Catalogo: {} equipo(s) agregado(s), {} en total.", nuevos.size(), productos.count());
+        }
     }
 
     // ----- apoyo -----

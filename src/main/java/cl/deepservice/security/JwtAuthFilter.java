@@ -36,18 +36,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = cabecera.substring(7);
+        String token = cabecera.substring(7).trim();
         try {
             if (jwtService.esValido(token)
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 String correo = jwtService.extraerCorreo(token);
-                UserDetails detalles = usuarioDetailsService.loadUserByUsername(correo);
+                UserDetails detalles = usuarioDetailsService.cargarSiVigente(correo, jwtService.extraerEmision(token));
 
-                var auth = new UsernamePasswordAuthenticationToken(
-                        detalles, null, detalles.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                // Una cuenta desactivada pierde el acceso de inmediato, aunque su sesión no haya vencido.
+                if (detalles != null && detalles.isEnabled()) {
+                    var auth = new UsernamePasswordAuthenticationToken(
+                            detalles, null, detalles.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         } catch (Exception ex) {
             SecurityContextHolder.clearContext();

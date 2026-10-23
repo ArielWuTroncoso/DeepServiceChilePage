@@ -41,7 +41,7 @@ public class SecurityConfig {
             CorsConfigurationSource corsConfigurationSource) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())   // sin cookies de sesion: la API usa un token en cabecera
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .httpBasic(basic -> basic.disable())
             .formLogin(form -> form.disable())
@@ -57,21 +57,24 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(RUTAS_SPA).permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/salud").permitAll()
-                    // Catalogo publico
+
+                    // ---- Todo lo interno vive bajo /api/admin y exige rol ADMIN ----
+                    // (solicitudes de clientes, edicion del catalogo e inventario). Va primero
+                    // para que ninguna regla publica pueda abrirlo por error.
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                    // ---- Publico: solo lectura del catalogo y envio del formulario ----
                     .requestMatchers(HttpMethod.GET, "/api/categorias", "/api/marcas",
-                                     "/api/productos", "/api/productos/**").permitAll()
-                    // Formulario de contacto
+                                     "/api/productos", "/api/productos/*", "/api/catalogo/estado").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/contacto").permitAll()
-                    // Acceso de administradores (el registro exige codigo de autorizacion)
+
+                    // ---- Acceso de administradores (el registro exige codigo de autorizacion) ----
                     .requestMatchers(HttpMethod.POST, "/auth/admin/registro", "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                     .requestMatchers(HttpMethod.POST, "/auth/me/bienvenida").authenticated()
-                    // Gestion interna
-                    .requestMatchers(HttpMethod.GET, "/api/contacto").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/contacto/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/productos").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/auth/me/contrasena").authenticated()
+
+                    // ---- Todo lo demas, con sesion ----
                     .anyRequest().authenticated());
 
         return http.build();
@@ -97,10 +100,9 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.stream(origenes.split(","))
                 .map(String::trim).filter(v -> !v.isBlank()).toList());
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);   // la sesion viaja en la cabecera Authorization, no en cookies
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

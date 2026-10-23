@@ -2,6 +2,12 @@ server:
   port: ${PORT:8080}
   compression:
     enabled: true
+  # Ni el detalle del error ni el rastro de la excepcion salen hacia el visitante.
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
 
 spring:
   application:
@@ -21,6 +27,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  h2:
+    console:
+      enabled: false
   flyway:
     enabled: ${FLYWAY_ENABLED:false}
     baseline-on-migrate: true
@@ -33,15 +42,20 @@ spring:
           cache-public: true
 
 jwt:
-  # En produccion inyectar JWT_SECRET. Generar con: openssl rand -base64 48
-  secret: ${JWT_SECRET:6B59703373367639792F423F4528482B4D6251655468576D5A7134743777217A}
-  expiration: ${JWT_EXPIRATION:86400000}
+  # Obligatorio en produccion: JWT_SECRET (generar con: openssl rand -base64 48).
+  # Sin valor el servidor usa una clave aleatoria que cambia en cada reinicio (cierra las sesiones).
+  secret: ${JWT_SECRET:}
+  # Duracion de la sesion: 8 horas.
+  expiration: ${JWT_EXPIRATION:28800000}
 
 app:
   admin:
     # Codigo que deben presentar los administradores para registrarse. Sin valor,
     # el registro queda cerrado. Generar con: openssl rand -base64 24
     registro-codigo: ${ADMIN_REGISTRO_CODIGO:}
+    # Cuenta inicial opcional (se crea una sola vez, solo si ambos tienen valor).
+    inicial-correo: ${ADMIN_INICIAL_CORREO:}
+    inicial-clave: ${ADMIN_INICIAL_CLAVE:}
   cors:
     allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173}
   seed:

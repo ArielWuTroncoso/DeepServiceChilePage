@@ -36,11 +36,15 @@ services:
       - key: SEED_ENABLED
         value: "true"
       - key: JWT_SECRET
-        generateValue: true
+        generateValue: true   # secreto propio de este servicio; no reemplazar por uno publicado
       - key: JWT_EXPIRATION
-        value: "86400000"
+        value: "28800000"     # sesion del panel: 8 horas
       - key: ADMIN_REGISTRO_CODIGO
         sync: false   # codigo para registrar administradores (vacio = registro cerrado)
+      - key: ADMIN_INICIAL_CORREO
+        sync: false   # opcional: cuenta de administrador inicial (se crea una vez)
+      - key: ADMIN_INICIAL_CLAVE
+        sync: false
       - key: FRONTEND_ORIGINS
         sync: false   # https://deep-service-frontend.onrender.com
       - key: PORT
@@ -65,6 +69,26 @@ services:
         source: /*
         destination: /index.html
     headers:
+      # Cabeceras de seguridad para todo el sitio.
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      # Solo se carga lo propio, la API en Render y el mapa de Google de la pagina de contacto.
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src 'self' data:; connect-src 'self' https://*.onrender.com; frame-src https://www.google.com https://*.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
       # JS/CSS de Vite: el nombre lleva hash, se puede cachear para siempre.
       - path: /assets/*
         name: Cache-Control

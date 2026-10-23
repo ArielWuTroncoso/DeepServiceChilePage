@@ -39,6 +39,32 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
                           @Param("marca") String marca,
                           @Param("patron") String patron);
 
+    /** Ficha pública: solo equipos activos (un equipo dado de baja deja de verse). */
+    Optional<Producto> findBySlugAndActivoTrue(String slug);
+
+    /** Panel de administración: todos los equipos, activos o no, con su ficha completa. */
+    @Query("""
+           SELECT DISTINCT p FROM Producto p
+           JOIN FETCH p.categoria
+           JOIN FETCH p.marca
+           LEFT JOIN FETCH p.especificaciones
+           ORDER BY p.nombre ASC
+           """)
+    List<Producto> listarTodosConDetalle();
+
+    /** Inventario: todos los equipos con su categoría y marca, sin la ficha técnica. */
+    @Query("""
+           SELECT p FROM Producto p
+           JOIN FETCH p.categoria
+           JOIN FETCH p.marca
+           ORDER BY p.nombre ASC
+           """)
+    List<Producto> listarConClasificacion();
+
+    /** Identificadores de los equipos dados de baja (el sitio público los oculta). */
+    @Query("SELECT p.slug FROM Producto p WHERE p.activo = false ORDER BY p.slug")
+    List<String> slugsInactivos();
+
     long countByCategoriaSlug(String slug);
 
     long countByMarcaSlug(String slug);

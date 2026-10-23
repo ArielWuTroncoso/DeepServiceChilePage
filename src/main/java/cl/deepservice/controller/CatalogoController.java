@@ -2,9 +2,6 @@ package cl.deepservice.controller;
 
 import cl.deepservice.dto.Dtos.*;
 import cl.deepservice.service.CatalogoService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,19 +38,9 @@ public class CatalogoController {
         return catalogo.obtener(slug);
     }
 
-    @PostMapping("/productos")
-    public ResponseEntity<ProductoDetalle> crear(@Valid @RequestBody ProductoRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(catalogo.crear(req));
-    }
-
-    @PutMapping("/productos/{id}")
-    public ProductoDetalle actualizar(@PathVariable Long id, @Valid @RequestBody ProductoRequest req) {
-        return catalogo.actualizar(id, req);
-    }
-
-    @DeleteMapping("/productos/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        catalogo.eliminar(id);
-        return ResponseEntity.noContent().build();
+    /** Equipos activos y equipos dados de baja, para que el sitio refleje lo que decide el panel. */
+    @GetMapping("/catalogo/estado")
+    public EstadoCatalogo estado() {
+        return catalogo.estado();
     }
 }

@@ -6,6 +6,7 @@ import CampoClave from '../components/auth/CampoClave';
 import ReglasClave from '../components/auth/ReglasClave';
 import { useAuth } from '../context/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useNoIndex } from '../hooks/useNoIndex';
 import { useIdioma } from '../i18n/IdiomaContext';
 import { mensajeError } from '../i18n/errores';
 import { claveValida } from '../utils/clave';
@@ -40,6 +41,7 @@ export default function AccesoPage() {
   const [enviando, setEnviando] = useState(false);
 
   const registro = modo === 'registro';
+  useNoIndex();
   useDocumentTitle(registro ? t('Registro de administrador', 'Administrator sign-up') : t('Ingreso de administrador', 'Administrator sign-in'));
 
   if (autenticado) return <Navigate to={location.state?.desde ?? (esAdmin ? '/admin' : '/')} replace />;

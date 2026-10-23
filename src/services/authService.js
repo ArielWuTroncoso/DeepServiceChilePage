@@ -27,6 +27,11 @@ export async function marcarBienvenidaVista() {
   return usuario;
 }
 
+/** Cambia la contraseña. El servidor cierra las demás sesiones y entrega una nueva a esta. */
+export async function cambiarContrasena(actual, nueva) {
+  return guardarSesion(await api.put('/auth/me/contrasena', { actual, nueva }));
+}
+
 export function logout() {
   clearToken();
 }

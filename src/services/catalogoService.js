@@ -13,6 +13,6 @@ export function listarProductos({ categoria, marca, busqueda } = {}) {
 }
 
 export const obtenerProducto = (slug) => api.get(`/api/productos/${slug}`);
-export const crearProducto = (datos) => api.post('/api/productos', datos);
-export const actualizarProducto = (id, datos) => api.put(`/api/productos/${id}`, datos);
-export const eliminarProducto = (id) => api.del(`/api/productos/${id}`);
+
+/** Equipos activos y equipos dados de baja desde el panel (no incluye existencias). */
+export const estadoCatalogo = () => api.get('/api/catalogo/estado');

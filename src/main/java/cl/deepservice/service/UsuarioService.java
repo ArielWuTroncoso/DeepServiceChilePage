@@ -1,14 +1,17 @@
 package cl.deepservice.service;
 
+import cl.deepservice.dto.Dtos.CambioClaveRequest;
 import cl.deepservice.dto.Dtos.RegistroAdminRequest;
 import cl.deepservice.dto.Dtos.UsuarioResponse;
 import cl.deepservice.exception.RecursoNoEncontradoException;
 import cl.deepservice.exception.RegistroNoAutorizadoException;
 import cl.deepservice.exception.ReglaNegocioException;
+import cl.deepservice.exception.SolicitudInvalidaException;
 import cl.deepservice.model.Rol;
 import cl.deepservice.model.Usuario;
 import cl.deepservice.repository.RolRepository;
 import cl.deepservice.repository.UsuarioRepository;
+import cl.deepservice.security.CredencialesConocidas;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -85,10 +89,38 @@ public class UsuarioService {
         return aDto(u);
     }
 
+    /**
+     * Cambia la contraseña de quien tiene la sesión abierta. Pide la actual (una sesión robada
+     * no basta) y anota la fecha: las sesiones anteriores dejan de valer.
+     */
+    @Transactional
+    public UsuarioResponse cambiarContrasena(String correo, CambioClaveRequest req) {
+        Usuario u = usuarios.findByCorreoIgnoreCase(correo)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+        if (!encoder.matches(req.actual(), u.getContrasenaHash())) {
+            throw new SolicitudInvalidaException("La contraseña actual no es correcta");
+        }
+        if (req.nueva().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new SolicitudInvalidaException("La contraseña es demasiado larga");
+        }
+        if (req.actual().equals(req.nueva())) {
+            throw new SolicitudInvalidaException("La contraseña nueva debe ser distinta de la actual");
+        }
+        u.setContrasenaHash(encoder.encode(req.nueva()));
+        u.setClaveCambiadaEn(OffsetDateTime.now());
+        return aDto(u);
+    }
+
     public UsuarioResponse aDto(Usuario u) {
         List<String> nombresRoles = u.getRoles().stream().map(Rol::getNombre).toList();
         return new UsuarioResponse(u.getId(), u.getNombre(), u.getCorreo(), u.getEmpresa(), nombresRoles,
-                u.getFechaCreacion(), Boolean.TRUE.equals(u.getBienvenidaVista()));
+                u.getFechaCreacion(), Boolean.TRUE.equals(u.getBienvenidaVista()), tieneClaveInicial(u));
+    }
+
+    /** ¿La cuenta sigue con la contraseña publicada en la primera versión del sitio? */
+    private boolean tieneClaveInicial(Usuario u) {
+        return CredencialesConocidas.CORREO_INICIAL.equalsIgnoreCase(u.getCorreo())
+                && encoder.matches(CredencialesConocidas.CLAVE_INICIAL, u.getContrasenaHash());
     }
 
     /** Comparacion en tiempo constante para no filtrar el codigo por diferencias de tiempo. */

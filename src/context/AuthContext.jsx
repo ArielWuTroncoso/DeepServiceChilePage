@@ -45,6 +45,12 @@ export function AuthProvider({ children }) {
     if (actualizado) setUsuario(actualizado);
   }, []);
 
+  const cambiarClave = useCallback(async (actual, nueva) => {
+    const data = await authService.cambiarContrasena(actual, nueva);
+    setUsuario(data.usuario ?? null);
+    return data;
+  }, []);
+
   const cerrarSesion = useCallback(() => {
     authService.logout();
     setUsuario(null);
@@ -58,8 +64,9 @@ export function AuthProvider({ children }) {
     iniciarSesion,
     registrarAdmin,
     marcarBienvenida,
+    cambiarClave,
     cerrarSesion,
-  }), [usuario, cargando, iniciarSesion, registrarAdmin, marcarBienvenida, cerrarSesion]);
+  }), [usuario, cargando, iniciarSesion, registrarAdmin, marcarBienvenida, cambiarClave, cerrarSesion]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
